@@ -1,4 +1,4 @@
-module golang.org/x/crypto/bcrypt
+module github.com/knailk/go-shopee
 
 go 1.19
 
