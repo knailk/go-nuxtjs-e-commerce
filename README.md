@@ -6,6 +6,7 @@
 * [Use Case Diagram](#use-case-diagram)
 * [Class Diagram](#class-diagram)
 * [Entity Relationship Diagram](#entity-relationship-diagram)
+* [Implementation](#implementation)
 
 [Shopee e-commerce trading floor](https://shopee.vn/) is owned by SEA Group in Singapore. It is present in many countries such as Vietnam, Malaysia, Thailand, the Philippines,and Indonesia. So, I will focus on their online retail business where users can sell/buy their products.
 
@@ -70,4 +71,21 @@ Following is the entity relationship diagram:
     <img src="/img/entity-relationship-diagram.png" alt="Entity relationship Diagram">
     <br />
     Entity relationship Diagram
+</p>
+
+### Implementation
+
+After reading some post about Clean Architecture, I knew this arch is suitable for Go.
+
+This project has 4 Domain layer :
+* Models Layer(entity).
+* Repository Layer.
+* Usecase Layer.
+* Delivery Layer.
+
+The diagram (you can read more [here](https://github.com/bxcodec/go-clean-arch)):
+<p align="center">
+    <img src="/img/clean-arch.png" alt="Clean Architecture">
+    <br />
+    Clean Architecture Diagram
 </p>
