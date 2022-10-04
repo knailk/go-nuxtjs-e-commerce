@@ -28,7 +28,7 @@ type Repository interface {
 }
 
 //UseCase interface
-type UseCase interface {
+type Usecase interface {
 	GetProduct(id entity.ID) (*entity.Product, error)
 	SearchProducts(query string) ([]*entity.Product, error)
 	ListProducts(entity.ID) ([]*entity.Product, error)
