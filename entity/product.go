@@ -2,14 +2,16 @@ package entity
 
 import "time"
 
+const ProductTableName = "product"
 type Product struct {
-	ProductID      ID
-	Name           string
-	Price          int64
-	Description    string
-	QuantitySold   int64
-	AvailableUnits int64
-	CreatedAt      time.Time
-	UpdatedAt       time.Time
-	CategoryID     ID
+	ProductID      ID        `json:"id"`
+	Name           string    `json:"name"`
+	Price          int64     `json:"price"`
+	Description    string    `json:"description"`
+	QuantitySold   int64     `json:"quantity_sold"`
+	AvailableUnits int64     `json:"available_units"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	CategoryID     ID        `json:"category_id"`
+	IsDeleted      bool      `json:"id_deleted"`
 }

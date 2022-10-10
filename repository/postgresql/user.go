@@ -23,13 +23,37 @@ func NewUserRepo(db *sql.DB) product.Repository{
 
 //get User by id
 func (r *UserRepo) Get(id entity.ID) (*entity.User, error){
-	return nil,nil
+	stmt,err := r.db.Prepare(`select id,email,name,gender,phone where id = ?`)
+	if err != nil {
+		return nil, err
+	}
+	rows,err := stmt.Query(id)
+	if err != nil{
+		return nil, err
+	}
+	var u *entity.User
+	rows.Scan(&u.UserId, &u.Email, &u.Name, &u.Gender, &u.Phone)
+	return u,nil
 }
 //search list User by query
 func (r *UserRepo) Search(query string) ([]*entity.User, error){
-	return nil,nil
+	stmt,err := r.db.Prepare(`select id,email,name,gender,phone where name like ? `)
+	if err != nil {
+		return nil, err
+	}
+	rows,err := stmt.Query("%" + query + "%")
+	if err != nil{
+		return nil, err
+	}
+	var result []*entity.User
+	for rows.Next() {
+		var u *entity.User
+		rows.Scan(&u.UserId, &u.Email, &u.Name, &u.Gender, &u.Phone)
+		result = append(result, u)
+	}
+	return result,nil
 }
-//get list User by category id
+//TODO (continue here) get all user
 func (r *UserRepo) List(entity.ID) ([]*entity.User, error){
 	return nil,nil
 }
