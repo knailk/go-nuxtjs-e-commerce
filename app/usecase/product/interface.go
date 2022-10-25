@@ -1,10 +1,10 @@
 package product
 
 import (
-	"github.com/knailk/go-shopee/entity"
+	"github.com/knailk/go-shopee/app/entity"
 )
 
-//Reader interface
+//Reader interface.
 type Reader interface {
 	//get product by id
 	Get(id entity.ID) (*entity.Product, error)
@@ -14,20 +14,20 @@ type Reader interface {
 	List(entity.ID) ([]*entity.Product, error)
 }
 
-//Writer interface
+//Writer interface.
 type Writer interface {
 	Create(e *entity.Product) (entity.ID, error)
 	Update(e *entity.Product) error
 	Delete(id entity.ID) error
 }
 
-//Repository interface
+//Repository interface.
 type Repository interface {
 	Reader
 	Writer
 }
 
-//UseCase interface
+//UseCase interface.
 type Usecase interface {
 	GetProduct(id entity.ID) (*entity.Product, error)
 	SearchProducts(query string) ([]*entity.Product, error)

@@ -1,6 +1,6 @@
 package entity
 
-//information for shipper data
+// Contact information for shipper data.
 type contact struct {
 	ContactId ID
 	Address int

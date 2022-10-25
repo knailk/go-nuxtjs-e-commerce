@@ -3,6 +3,8 @@ package entity
 import "time"
 
 const ProductTableName = "product"
+
+// Product data.
 type Product struct {
 	ProductID      ID        `json:"id"`
 	Name           string    `json:"name"`

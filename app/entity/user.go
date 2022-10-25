@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// user data
+// User data.
 type User struct {
 	UserId    ID        `json:"id"`
 	Email     string    `json:"email"`

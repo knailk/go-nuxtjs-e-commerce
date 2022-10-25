@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/knailk/go-shopee/entity"
+	"github.com/knailk/go-shopee/app/entity"
 )
 
 //Reader interface

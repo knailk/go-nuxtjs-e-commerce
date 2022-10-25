@@ -2,6 +2,7 @@ package entity
 
 import "time"
 
+// Order data.
 type Order struct {
 	OrderID         ID
 	DeliveryAddress ID

@@ -1,12 +1,12 @@
 package product
 
-import "github.com/knailk/go-shopee/entity"
+import "github.com/knailk/go-shopee/app/entity"
 
-//Service product usecase
+//Service product usecase.
 type Service struct {
 	repo Repository
 }
-//NewService create new service
+//NewService create new service.
 func NewService(r Repository) *Service {
 	return &Service{
 		repo: r,

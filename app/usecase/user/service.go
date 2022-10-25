@@ -1,6 +1,6 @@
 package user
 
-import "github.com/knailk/go-shopee/entity"
+import "github.com/knailk/go-shopee/app/entity"
 
 type Service struct {
 	repo Repository

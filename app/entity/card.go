@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-//credit card data
+//Card data.
 type Card struct {
 	CardId     ID
 	Name       string

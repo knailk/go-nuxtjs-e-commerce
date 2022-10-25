@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/knailk/go-shopee/usecase/product"
+	"github.com/knailk/go-shopee/app/usecase/product"
 	"github.com/labstack/echo"
 )
 

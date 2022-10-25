@@ -2,7 +2,7 @@ package entity
 
 import "github.com/google/uuid"
 
-//ID entity
+//ID entity.
 type ID uuid.UUID
 
 //newID create a new entity ID
