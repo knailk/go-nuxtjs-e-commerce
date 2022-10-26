@@ -1,13 +1,30 @@
 package main
 
 import (
-	"context"
+	cx "context"
 	"database/sql"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
+	"os"
+	"strconv"
 	"time"
+
+	"github.com/codegangsta/negroni"
+	"github.com/gorilla/context"
+	"github.com/gorilla/mux"
+	"github.com/knailk/go-shopee/app/config"
+	"github.com/knailk/go-shopee/app/delivery/handler"
+	"github.com/knailk/go-shopee/app/delivery/middleware"
+	"github.com/knailk/go-shopee/app/usecase/user"
+	"github.com/knailk/go-shopee/repository/sqlite"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
+type app struct {
+	UserService user.Service
+}
 
 func main() {
 	var dsn string
@@ -30,6 +47,38 @@ func main() {
 		}
 	}(db)
 	
+	userRepo := sqlite.NewUserRepo(db)
+	//application := app{UserService: *user.NewService(userRepo)}
+	userService := user.NewService(userRepo)
+
+	r := mux.NewRouter()
+	
+	//handlers
+	n := negroni.New(
+		negroni.HandlerFunc(middleware.Cors),
+		negroni.NewLogger(),
+	)
+	//handler user
+	handler.MakeUserHandlers(r,*n,*userService)
+	
+	http.Handle("/", r)
+	http.Handle("/metrics", promhttp.Handler())
+	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
+	srv := &http.Server{
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Addr:         ":" + strconv.Itoa(config.API_PORT),
+		Handler:      context.ClearHandler(http.DefaultServeMux),
+		ErrorLog:     logger,
+	}
+	err = srv.ListenAndServe()
+	if err != nil {
+		log.Panic(err.Error())
+	}
 }
 
 func openDB(dsn string, setLitmits bool) (*sql.DB, error){
@@ -45,7 +94,7 @@ func openDB(dsn string, setLitmits bool) (*sql.DB, error){
 		db.SetMaxIdleConns(5)
 	}
 
-	ctx,cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx,cancel := cx.WithTimeout(cx.Background(), 5*time.Second)
 	defer cancel()
 
 	err = db.PingContext(ctx)

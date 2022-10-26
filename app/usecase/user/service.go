@@ -14,9 +14,9 @@ func NewService(r Repository) *Service {
 }
 
 // TODO implement method of usecase interface
-func GetUser(id entity.ID) (*entity.User, error)
-func SearchUsers(query string) ([]*entity.User, error)
-func ListUsers() ([]*entity.User, error)
-func CreateUser(user entity.User) (entity.ID, error)
-func UpdateUser(e *entity.User) error
-func DeleteUser(id entity.ID) error
+func (s *Service) GetUser(id entity.ID) (*entity.User, error)
+func (s *Service) SearchUsers(query string) ([]*entity.User, error)
+func (s *Service) ListUsers() ([]*entity.User, error)
+func (s *Service) CreateUser(email string, password string, name string, gender string, phone string, role entity.Role) (entity.ID, error)
+func (s *Service) UpdateUser(e *entity.User) error
+func (s *Service) DeleteUser(id entity.ID) error

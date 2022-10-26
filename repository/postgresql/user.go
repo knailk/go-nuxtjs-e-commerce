@@ -4,7 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase/product"
+	"github.com/knailk/go-shopee/app/usecase/user"
 )
 
 type UserRepo struct {
@@ -12,8 +12,8 @@ type UserRepo struct {
 }
 
 //NewUserRepo create an implementation of product repository.
-func NewUserRepo(db *sql.DB) product.Repository{
-	return &ProductRepo{
+func NewUserRepo(db *sql.DB) user.Repository{
+	return &UserRepo{
 		db: db,
 	}
 }

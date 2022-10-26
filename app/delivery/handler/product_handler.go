@@ -1,4 +1,4 @@
-package http
+package handler
 
 import (
 	"github.com/knailk/go-shopee/app/usecase/product"
