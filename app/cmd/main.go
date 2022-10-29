@@ -11,27 +11,20 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/codegangsta/negroni"
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	"github.com/knailk/go-shopee/app/config"
 	"github.com/knailk/go-shopee/app/delivery/handler"
-	"github.com/knailk/go-shopee/app/delivery/middleware"
 	"github.com/knailk/go-shopee/app/usecase/user"
 	"github.com/knailk/go-shopee/repository/sqlite"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-type app struct {
-	UserService user.Service
-}
 
 func main() {
 	var dsn string
-	var port string
 	var setLimits bool
 	flag.StringVar(&dsn, "dsn", "/shopeeDB.db", "SQLite DSN")
-	flag.StringVar(&port, "port", "8080", "Service Port")
 	flag.BoolVar(&setLimits, "limits", false, "Sets DB limits")
 	flag.Parse()
 
@@ -48,18 +41,22 @@ func main() {
 	}(db)
 	
 	userRepo := sqlite.NewUserRepo(db)
-	//application := app{UserService: *user.NewService(userRepo)}
 	userService := user.NewService(userRepo)
-
+	
+	//metricService, err := metric.NewPrometheusService()
+	if err != nil {
+		log.Panic(err.Error())
+	}
 	r := mux.NewRouter()
 	
 	//handlers
-	n := negroni.New(
-		negroni.HandlerFunc(middleware.Cors),
-		negroni.NewLogger(),
-	)
+	// n := negroni.New(
+	// 	negroni.HandlerFunc(middleware.Cors),
+	// 	negroni.HandlerFunc(middleware.Metrics(metricService)),
+	// 	negroni.NewLogger(),
+	// )
 	//handler user
-	handler.MakeUserHandlers(r,*n,*userService)
+	handler.MakeUserHandlers(r,*userService)
 	
 	http.Handle("/", r)
 	http.Handle("/metrics", promhttp.Handler())
@@ -71,7 +68,7 @@ func main() {
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		Addr:         ":" + strconv.Itoa(config.API_PORT),
+		Addr:         ":" + strconv.Itoa(8081),
 		Handler:      context.ClearHandler(http.DefaultServeMux),
 		ErrorLog:     logger,
 	}
@@ -83,7 +80,7 @@ func main() {
 
 func openDB(dsn string, setLitmits bool) (*sql.DB, error){
 	//connect to database
-	db,err := sql.Open("sqlite3",dsn)
+	db,err := sql.Open("sqlite3", "shopeeDB.db")
 	if err != nil {
 		return nil, err
 	}
@@ -103,10 +100,4 @@ func openDB(dsn string, setLitmits bool) (*sql.DB, error){
 	}
 
 	return db, nil
-}
-
-func checkErr(err error){
-	if err != nil {
-		log.Fatal(err)
-	}
 }

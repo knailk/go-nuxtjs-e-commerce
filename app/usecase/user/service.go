@@ -1,6 +1,12 @@
 package user
 
-import "github.com/knailk/go-shopee/app/entity"
+import (
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/knailk/go-shopee/app/entity"
+)
 
 type Service struct {
 	repo Repository
@@ -13,10 +19,35 @@ func NewService(r Repository) *Service {
 	}
 }
 
-// TODO implement method of usecase interface
-func (s *Service) GetUser(id entity.ID) (*entity.User, error)
-func (s *Service) SearchUsers(query string) ([]*entity.User, error)
-func (s *Service) ListUsers() ([]*entity.User, error)
-func (s *Service) CreateUser(email string, password string, name string, gender string, phone string, role entity.Role) (entity.ID, error)
-func (s *Service) UpdateUser(e *entity.User) error
-func (s *Service) DeleteUser(id entity.ID) error
+
+func (s *Service) GetUser(id entity.ID) (*entity.User, error){
+	return s.repo.Get(id)
+}
+func (s *Service) SearchUsers(query string) ([]*entity.User, error){
+	return s.repo.Search(strings.ToLower(query))
+}
+func (s *Service) ListUsers() ([]*entity.User, error){
+	fmt.Println("in user/service")
+	return s.repo.List()
+}
+func (s *Service) CreateUser(email string, password string, name string, gender string, phone string, role entity.Role) (entity.ID, error){
+	e, err := entity.NewUser(email, password, name, gender,phone, role)
+	if err != nil {
+		return e.UserId, err
+	}
+	return s.repo.Create(e)
+}
+func (s *Service) UpdateUser(e *entity.User) error{
+	e.UpdatedAt = time.Now()
+	return s.repo.Update(e)
+}
+func (s *Service) DeleteUser(id entity.ID) error{
+	u, err := s.GetUser(id)
+	if u == nil {
+		return entity.ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+	return s.repo.Delete(id)
+}

@@ -54,7 +54,7 @@ func (r *UserRepo) Search(query string) ([]*entity.User, error){
 	return result,nil
 }
 //TODO (continue here) get all user
-func (r *UserRepo) List(entity.ID) ([]*entity.User, error){
+func (r *UserRepo) List() ([]*entity.User, error){
 	return nil,nil
 }
 //Create a User.

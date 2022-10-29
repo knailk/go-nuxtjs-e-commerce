@@ -2,10 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-
-	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
@@ -22,19 +21,23 @@ func listUsers(service user.Service) http.Handler {
 		switch {
 		case query == "":
 			data, err = service.ListUsers()
+			fmt.Println("case query 1")
 		default:
 			data, err = service.SearchUsers(query)
+			fmt.Println("case defalt 1")
 		}
+		fmt.Println("Line 1")
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
 		}
-
+		fmt.Println("Line 2")
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(errorMessage))
+			fmt.Println("Data == nil")
 			return
 		}
 		var toJ []*presenter.User
@@ -97,7 +100,7 @@ func createUser(service user.Service) http.Handler {
 	})
 }
 
-func getUser(service user.Service) http.Handler{
+func getUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error get user by id"
 		vars := mux.Vars(r)
@@ -105,6 +108,7 @@ func getUser(service user.Service) http.Handler{
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
+			fmt.Printf("err1: %v\n", err)
 			return
 		}
 		data, err := service.GetUser(id)
@@ -112,12 +116,14 @@ func getUser(service user.Service) http.Handler{
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
+			fmt.Printf("err2: %v\n", err)
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(errorMessage))
+			fmt.Println("data==nil")
 			return
 		}
 		toJ := &presenter.User{
@@ -134,7 +140,7 @@ func getUser(service user.Service) http.Handler{
 	})
 }
 
-func deleteUser(service user.Service) http.Handler{
+func deleteUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error delete user"
 		vars := mux.Vars(r)
@@ -142,6 +148,7 @@ func deleteUser(service user.Service) http.Handler{
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
+			fmt.Println(err)
 			return
 		}
 		err = service.DeleteUser(id)
@@ -154,20 +161,30 @@ func deleteUser(service user.Service) http.Handler{
 	})
 }
 
-func MakeUserHandlers(r *mux.Router, n negroni.Negroni, service user.Service) {
-	r.Handle("/user", n.With(
-		negroni.Wrap(listUsers(service)),
-	)).Methods("GET", "OPTIONS").Name("listUsers")
+// func MakeUserHandlers(r *mux.Router, n negroni.Negroni, service user.Service) {
+// 	r.Handle("/user", n.With(
+// 		negroni.Wrap(listUsers(service)),
+// 	)).Methods("GET", "OPTIONS").Name("listUsers")
 
-	r.Handle("/user", n.With(
-		negroni.Wrap(createUser(service)),
-	)).Methods("POST", "OPTIONS").Name("createUser")
+// 	r.Handle("/user", n.With(
+// 		negroni.Wrap(createUser(service)),
+// 	)).Methods("POST", "OPTIONS").Name("createUser")
 
-	r.Handle("/user/{id}", n.With(
-		negroni.Wrap(getUser(service)),
-	)).Methods("GET", "OPTIONS").Name("getUser")
+// 	r.Handle("/user/{id}", n.With(
+// 		negroni.Wrap(getUser(service)),
+// 	)).Methods("GET", "OPTIONS").Name("getUser")
 
-	r.Handle("/user/{id}", n.With(
-		negroni.Wrap(deleteUser(service)),
-	)).Methods("DELETE", "OPTIONS").Name("deleteUser")
+// 	r.Handle("/user/{id}", n.With(
+// 		negroni.Wrap(deleteUser(service)),
+// 	)).Methods("DELETE", "OPTIONS").Name("deleteUser")
+// }
+
+func MakeUserHandlers(r *mux.Router, service user.Service) {
+	r.Handle("/user", listUsers(service)).Methods(http.MethodGet)
+
+	r.Handle("/user", createUser(service)).Methods(http.MethodPost)
+
+	r.Handle("/user/{id}", getUser(service)).Methods(http.MethodGet)
+
+	r.Handle("/user/{id}",deleteUser(service)).Methods(http.MethodDelete)
 }

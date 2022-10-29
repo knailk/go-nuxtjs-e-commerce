@@ -10,8 +10,8 @@ type Reader interface {
 	Get(id entity.ID) (*entity.User, error)
 	//search list User by query
 	Search(query string) ([]*entity.User, error)
-	//get list User by category id
-	List(entity.ID) ([]*entity.User, error)
+	//get list User
+	List() ([]*entity.User, error)
 }
 
 //Writer interface
