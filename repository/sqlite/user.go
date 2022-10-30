@@ -119,20 +119,22 @@ func (r *UserRepo) Update(e *entity.User) error {
 		name = ?, 
 		gender = ?, 
 		phone = ?, 
-		role = ?, 
-		updateAt = ?
+		updatedAt = ?
 		where id = ? and isDeleted = 0`)
+	if err != nil {
+		return err
+	}
+	passw, err := entity.GeneratePassword(e.Password)
 	if err != nil {
 		return err
 	}
 	_, err = stmt.Exec(
 		e.Email,
-		e.Password,
+		passw,
 		e.Name,
 		e.Gender,
 		e.Phone,
-		e.Role,
-		time.Now().Format("2006-01-02"),
+		time.Now().Format(time.RFC3339),
 		e.UserId,
 	)
 	if err != nil {

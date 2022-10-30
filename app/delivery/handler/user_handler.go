@@ -2,8 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
@@ -155,16 +157,16 @@ func deleteUser(service user.Service) http.Handler {
 	})
 }
 
-func createUser(service user.Service) http.Handler {
+func updateUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error adding user"
+		errorMessage := "Error update user"
 		var input struct {
+			UserID   string      `json:"id"`
 			Email    string      `json:"email"`
 			Password string      `json:"password"`
 			Name     string      `json:"name"`
 			Gender   string      `json:"gender"`
 			Phone    string      `json:"phone"`
-			Role     entity.Role `json:"role"`
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&input)
@@ -172,28 +174,36 @@ func createUser(service user.Service) http.Handler {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
+			fmt.Printf("err1: %v", err)
 			return
 		}
-		id, err := service.CreateUser(input.Email, input.Password, input.Name, input.Gender, input.Phone, input.Role)
+		id, err := entity.StringToID(input.UserID)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
+			fmt.Printf("err2: %v", err)
 			return
 		}
-		toJ := &presenter.User{
-			ID:     id,
-			Email:  input.Email,
-			Name:   input.Name,
-			Phone:  input.Phone,
-			Gender: input.Gender,
+		u := entity.User{
+			UserId:   id,
+			Email:    input.Email,
+			Password: input.Password,
+			Name:     input.Name,
+			Gender:   input.Gender,
+			Phone:    input.Phone,
 		}
-
-		w.WriteHeader(http.StatusCreated)
-		if err := json.NewEncoder(w).Encode(toJ); err != nil {
+		err = service.UpdateUser(&u)
+		w.Header().Set("Content-Type", "application/json")
+		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
+			fmt.Printf("err3: %v", err)
 			return
+		}
+		if err := json.NewEncoder(w).Encode("Update user successful"); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
 		}
 	})
 }
@@ -223,7 +233,7 @@ func MakeUserHandlers(r *mux.Router, service user.Service) {
 
 	r.Handle("/user/{id}", getUser(service)).Methods(http.MethodGet)
 
-	r.Handle("/user/{id}",deleteUser(service)).Methods(http.MethodDelete)
+	r.Handle("/user/{id}", deleteUser(service)).Methods(http.MethodDelete)
 
-	r.Handle("/user/{id}",updateUser(service)).Methods(http.MethodPut)
+	r.Handle("/user", updateUser(service)).Methods(http.MethodPut)
 }

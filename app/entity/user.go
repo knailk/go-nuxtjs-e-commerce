@@ -8,16 +8,16 @@ import (
 
 // User data.
 type User struct {
-	UserId    ID        `json:"id"`
-	Email     string    `json:"email"`
-	Password  string    `json:"password"`
-	Name      string    `json:"name"`
-	Gender    string    `json:"gender"`
-	Phone     string    `json:"phone"`
-	Role      Role      `json:"role"`
+	UserId    ID     `json:"id"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+	Name      string `json:"name"`
+	Gender    string `json:"gender"`
+	Phone     string `json:"phone"`
+	Role      Role   `json:"role"`
 	CreatedAt string `json:"createAt"`
 	UpdatedAt string `json:"updateAt"`
-	IsDeleted bool      `json:"isDelete"`
+	IsDeleted bool   `json:"isDelete"`
 }
 
 type Role string
@@ -39,7 +39,7 @@ func NewUser(email, password, name, gender, phone string, role Role) (*User, err
 		CreatedAt: time.Now().Format(time.RFC3339),
 		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
-	pwd, err := generatePassword(password)
+	pwd, err := GeneratePassword(password)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func NewUser(email, password, name, gender, phone string, role Role) (*User, err
 	return u, nil
 }
 
-func generatePassword(raw string) (string, error) {
+func GeneratePassword(raw string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(raw), 10)
 	if err != nil {
 		return "", err
