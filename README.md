@@ -35,7 +35,7 @@ As described, We will have 2 main actors:
 Here is the use case diagram of our Online Shopping System:
 
 <p align="center">
-    <img src="/img/use-case.png" alt="Online Shoopping System Use Case Diagram">
+    <img src="/doc/use-case.png" alt="Online Shoopping System Use Case Diagram">
     <br />
     Use Case Diagram
 </p>
@@ -58,7 +58,7 @@ Here are the descriptions of the different classes of our Online Shopping System
 * **Note:** Class with red color was deleted, but it can be developed in the the future.
 
 <p align="center">
-    <img src="/img/class-diagram.png" alt="Online Shoopping System Class Diagram">
+    <img src="/doc/class-diagram.png" alt="Online Shoopping System Class Diagram">
     <br />
     Class Diagram
 </p>
@@ -68,7 +68,7 @@ Here are the descriptions of the different classes of our Online Shopping System
 Following is the entity relationship diagram:
 
 <p align="center">
-    <img src="/img/entity-relationship-diagram.png" alt="Entity relationship Diagram">
+    <img src="/doc/entity-relationship-diagram.png" alt="Entity relationship Diagram">
     <br />
     Entity relationship Diagram
 </p>
@@ -85,7 +85,7 @@ This project has 4 Domain layer :
 
 The diagram (you can read more [here](https://github.com/bxcodec/go-clean-arch)):
 <p align="center">
-    <img src="/img/clean-arch.png" alt="Clean Architecture">
+    <img src="/doc/clean-arch.png" alt="Clean Architecture">
     <br />
     Clean Architecture Diagram
 </p>
