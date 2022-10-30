@@ -28,6 +28,7 @@ const (
 	SELLER   Role = "Seller"
 )
 
+//NewUser create a new user with new ID
 func NewUser(email, password, name, gender, phone string, role Role) (*User, error) {
 	u := &User{
 		UserId:    NewID(),
@@ -38,6 +39,7 @@ func NewUser(email, password, name, gender, phone string, role Role) (*User, err
 		Role:      role,
 		CreatedAt: time.Now().Format(time.RFC3339),
 		UpdatedAt: time.Now().Format(time.RFC3339),
+		IsDeleted: false,
 	}
 	pwd, err := GeneratePassword(password)
 	if err != nil {
