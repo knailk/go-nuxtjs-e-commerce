@@ -15,8 +15,8 @@ type User struct {
 	Gender    string    `json:"gender"`
 	Phone     string    `json:"phone"`
 	Role      Role      `json:"role"`
-	CreatedAt time.Time `json:"createAt"`
-	UpdatedAt time.Time `json:"updateAt"`
+	CreatedAt string `json:"createAt"`
+	UpdatedAt string `json:"updateAt"`
 	IsDeleted bool      `json:"isDelete"`
 }
 
@@ -36,8 +36,8 @@ func NewUser(email, password, name, gender, phone string, role Role) (*User, err
 		Gender:    gender,
 		Phone:     phone,
 		Role:      role,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		CreatedAt: time.Now().Format(time.RFC3339),
+		UpdatedAt: time.Now().Format(time.RFC3339),
 	}
 	pwd, err := generatePassword(password)
 	if err != nil {

@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/knailk/go-shopee/app/entity"
@@ -24,13 +23,11 @@ func NewUserRepo(db *sql.DB) user.Repository {
 func (r *UserRepo) Get(id entity.ID) (*entity.User, error) {
 	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt from user where id = ? and isDeleted = 0`)
 	if err != nil {
-		fmt.Printf("err1: %v\n", err)
 		return nil, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(id)
 	if err != nil {
-		fmt.Printf("err2: %v\n", err)
 		return nil, err
 	}
 	var u entity.User
@@ -38,7 +35,6 @@ func (r *UserRepo) Get(id entity.ID) (*entity.User, error) {
 		err = rows.Scan(&u.UserId, &u.Email, &u.Name, &u.Gender, &u.Phone, &u.CreatedAt)
 	}
 	if err != nil {
-		fmt.Printf("err3: %v\n", err)
 		return nil, err
 	}
 	return &u, nil
@@ -57,9 +53,9 @@ func (r *UserRepo) Search(query string) ([]*entity.User, error) {
 	}
 	var result []*entity.User
 	for rows.Next() {
-		var u *entity.User
+		var u entity.User
 		rows.Scan(&u.UserId, &u.Email, &u.Name, &u.Gender, &u.Phone, &u.CreatedAt)
-		result = append(result, u)
+		result = append(result, &u)
 	}
 	return result, nil
 }
@@ -67,24 +63,20 @@ func (r *UserRepo) Search(query string) ([]*entity.User, error) {
 // List get all user
 func (r *UserRepo) List() ([]*entity.User, error) {
 	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt from user where isDeleted = 0`)
-	fmt.Println("1111111")
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
-	fmt.Println("2222222")
 	rows, err := stmt.Query()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(rows)
 	var result []*entity.User
 	for rows.Next() {
-		var u *entity.User
+		var u entity.User
 		rows.Scan(&u.UserId, &u.Email, &u.Name, &u.Gender, &u.Phone, &u.CreatedAt)
-		result = append(result, u)
+		result = append(result, &u)
 	}
-	fmt.Println("4444")
 	return result, nil
 }
 

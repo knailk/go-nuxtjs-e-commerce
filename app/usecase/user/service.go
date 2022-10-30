@@ -38,7 +38,7 @@ func (s *Service) CreateUser(email string, password string, name string, gender 
 	return s.repo.Create(e)
 }
 func (s *Service) UpdateUser(e *entity.User) error{
-	e.UpdatedAt = time.Now()
+	e.UpdatedAt = time.Now().Format(time.RFC3339)
 	return s.repo.Update(e)
 }
 func (s *Service) DeleteUser(id entity.ID) error{

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"github.com/gorilla/mux"
@@ -21,23 +20,18 @@ func listUsers(service user.Service) http.Handler {
 		switch {
 		case query == "":
 			data, err = service.ListUsers()
-			fmt.Println("case query 1")
 		default:
 			data, err = service.SearchUsers(query)
-			fmt.Println("case defalt 1")
 		}
-		fmt.Println("Line 1")
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
 		}
-		fmt.Println("Line 2")
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(errorMessage))
-			fmt.Println("Data == nil")
 			return
 		}
 		var toJ []*presenter.User
@@ -108,7 +102,6 @@ func getUser(service user.Service) http.Handler {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
-			fmt.Printf("err1: %v\n", err)
 			return
 		}
 		data, err := service.GetUser(id)
@@ -116,14 +109,12 @@ func getUser(service user.Service) http.Handler {
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
-			fmt.Printf("err2: %v\n", err)
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(errorMessage))
-			fmt.Println("data==nil")
 			return
 		}
 		toJ := &presenter.User{
@@ -148,12 +139,58 @@ func deleteUser(service user.Service) http.Handler {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
-			fmt.Println(err)
 			return
 		}
 		err = service.DeleteUser(id)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
+		if err := json.NewEncoder(w).Encode("Delete user successful"); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+		}
+	})
+}
+
+func createUser(service user.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		errorMessage := "Error adding user"
+		var input struct {
+			Email    string      `json:"email"`
+			Password string      `json:"password"`
+			Name     string      `json:"name"`
+			Gender   string      `json:"gender"`
+			Phone    string      `json:"phone"`
+			Role     entity.Role `json:"role"`
+		}
+
+		err := json.NewDecoder(r.Body).Decode(&input)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
+		id, err := service.CreateUser(input.Email, input.Password, input.Name, input.Gender, input.Phone, input.Role)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
+		toJ := &presenter.User{
+			ID:     id,
+			Email:  input.Email,
+			Name:   input.Name,
+			Phone:  input.Phone,
+			Gender: input.Gender,
+		}
+
+		w.WriteHeader(http.StatusCreated)
+		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
@@ -187,4 +224,6 @@ func MakeUserHandlers(r *mux.Router, service user.Service) {
 	r.Handle("/user/{id}", getUser(service)).Methods(http.MethodGet)
 
 	r.Handle("/user/{id}",deleteUser(service)).Methods(http.MethodDelete)
+
+	r.Handle("/user/{id}",updateUser(service)).Methods(http.MethodPut)
 }
