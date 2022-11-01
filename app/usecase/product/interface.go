@@ -11,7 +11,7 @@ type Reader interface {
 	//search list product by query
 	Search(query string) ([]*entity.Product, error)
 	//get list product by category id
-	List(entity.ID) ([]*entity.Product, error)
+	List(int64) ([]*entity.Product, error)
 }
 
 //Writer interface.

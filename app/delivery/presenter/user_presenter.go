@@ -9,4 +9,6 @@ type User struct {
 	Name      string    `json:"name"`
 	Gender    string    `json:"gender"`
 	Phone     string    `json:"phone"`
+	CreatedAt string    `json:"createAt"`
+	UpdatedAt string    `json:"updateAt"`
 }

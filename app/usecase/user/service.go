@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -27,7 +26,6 @@ func (s *Service) SearchUsers(query string) ([]*entity.User, error){
 	return s.repo.Search(strings.ToLower(query))
 }
 func (s *Service) ListUsers() ([]*entity.User, error){
-	fmt.Println("in user/service")
 	return s.repo.List()
 }
 func (s *Service) CreateUser(email string, password string, name string, gender string, phone string, role entity.Role) (entity.ID, error){

@@ -19,47 +19,50 @@ func NewProductRepo(db *sql.DB) product.Repository {
 	}
 }
 
-//Querying, or Creating/ Inserting into any database will be stored here.
-
 // Get product by id.
 func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select * from product where id=? and id_deleted = false`)
+	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId from product where id=? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 	var p entity.Product
 	rows, err := stmt.Query(id)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID, &p.IsDeleted)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+	}
+	if err != nil {
+		return nil, err
 	}
 	return &p, nil
 }
 
 // Search list product by query.
 func (r *ProductRepo) Search(query string) ([]*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select * from product where name like ? and is_delete = false`)
+	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId from product where name like ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
-	var result []*entity.Product
+	defer stmt.Close()
 	rows, err := stmt.Query("%" + query + "%")
 	if err != nil {
 		return nil, err
 	}
+	var result []*entity.Product
 	for rows.Next() {
 		var p entity.Product
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID, &p.IsDeleted)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 		result = append(result, &p)
 	}
 	return result, nil
 }
 
 // List product by category id.
-func (r *ProductRepo) List(id entity.ID) ([]*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select * from product where category_id= ? and is_delete = false`)
+func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
+	stmt, err := r.db.Prepare(`Select * from product where categoryID = ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +73,7 @@ func (r *ProductRepo) List(id entity.ID) ([]*entity.Product, error) {
 	}
 	for rows.Next() {
 		var p entity.Product
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID, &p.IsDeleted)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 		result = append(result, &p)
 	}
 	return result, nil
@@ -79,8 +82,9 @@ func (r *ProductRepo) List(id entity.ID) ([]*entity.Product, error) {
 // Create a product.
 func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
-	insert into product(id,name,price,description,quantity_sold,available_units,create_at,category_id,id_deleted) 
+	insert into product(id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId,isDeleted) 
 	value (?,?,?,?,?,?,?,?)`)
+	defer stmt.Close()
 	if err != nil {
 		return e.ProductID, err
 	}
@@ -91,18 +95,43 @@ func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 		e.Description,
 		e.QuantitySold,
 		e.AvailableUnits,
-		time.Now().Format("2022-09-26"),
-		time.Now().Format("2022-09-26"),
+		e.CreatedAt,
+		e.UpdatedAt,
 		e.CategoryID,
 		e.IsDeleted,
 	)
+	if err != nil {
+		return e.ProductID, err
+	}
 	return entity.NewID(), nil
 }
 
 // Update a product.
 func (r *ProductRepo) Update(e *entity.Product) error {
-	e.UpdatedAt = time.Now()
-	_, err := r.db.Exec("update product set name = ?, price = ?, description = ?, quantity_sold = ?,available_units =?, updated_at = ? where id = ?", e.Name, e.Price, e.Description, e.QuantitySold, e.AvailableUnits, e.UpdatedAt.Format("2022-09-26"), e.ProductID)
+	stmt, err := r.db.Prepare(`update product set 
+	name = ?, 
+	price = ?, 
+	description = ?, 
+	quantitySold = ?,
+	availableUnits =?, 
+	updatedAt = ? 
+	where id = ? and isDeleted = 0`)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(
+		e.Name, 
+		e.Price, 
+		e.Description, 
+		e.QuantitySold, 
+		e.AvailableUnits, 
+		time.Now().Format(time.RFC3339), 
+		e.ProductID,
+	)
+	if err != nil {
+		return err
+	}
+	err = stmt.Close()
 	if err != nil {
 		return err
 	}
@@ -111,7 +140,7 @@ func (r *ProductRepo) Update(e *entity.Product) error {
 
 // Delete a product.
 func (r *ProductRepo) Delete(id entity.ID) error {
-	_, err := r.db.Exec("update product set id_deleted = true where id = ?", id)
+	_, err := r.db.Exec("update product set isDeleted = true where id = ?", id)
 	if err != nil {
 		return err
 	}

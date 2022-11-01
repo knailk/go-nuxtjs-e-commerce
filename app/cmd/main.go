@@ -14,6 +14,9 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/handler"
+
+	"github.com/knailk/go-shopee/app/usecase/category"
+	"github.com/knailk/go-shopee/app/usecase/product"
 	"github.com/knailk/go-shopee/app/usecase/user"
 	"github.com/knailk/go-shopee/repository/sqlite"
 	_ "github.com/mattn/go-sqlite3"
@@ -42,21 +45,21 @@ func main() {
 	
 	userRepo := sqlite.NewUserRepo(db)
 	userService := user.NewService(userRepo)
+
+	productRepo := sqlite.NewProductRepo(db)
+	productService := product.NewService(productRepo)
+
+	categoryRepo := sqlite.NewCategoryRepo(db)
+	categoryService := category.NewService(categoryRepo)
 	
-	//metricService, err := metric.NewPrometheusService()
 	if err != nil {
 		log.Panic(err.Error())
 	}
 	r := mux.NewRouter()
 	
-	//handlers
-	// n := negroni.New(
-	// 	negroni.HandlerFunc(middleware.Cors),
-	// 	negroni.HandlerFunc(middleware.Metrics(metricService)),
-	// 	negroni.NewLogger(),
-	// )
 	//handler user
 	handler.MakeUserHandlers(r,*userService)
+	handler.MakeProductHandlers(r, *productService, *categoryService)
 	
 	http.Handle("/", r)
 	http.Handle("/metrics", promhttp.Handler())

@@ -14,12 +14,12 @@ type Product struct {
 	AvailableUnits int64  `json:"availableUnits"`
 	CreatedAt      string `json:"createdAt"`
 	UpdatedAt      string `json:"updatedAt"`
-	CategoryID     ID     `json:"categoryId"`
+	CategoryID     int64    `json:"categoryId"`
 	IsDeleted      bool   `json:"isDeleted"`
 }
 
 //NewProduct create a new product with new ID
-func NewProduct(name string, price int64, description string, quantitySold int64, availableInits int64, category ID) *Product {
+func NewProduct(name string, price int64, description string, quantitySold int64, availableInits int64, category int64) *Product {
 	return &Product{
 		ProductID:      NewID(),
 		Name:           name,

@@ -1,54 +1,50 @@
 package handler
 
 import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/knailk/go-shopee/app/entity"
+	"github.com/knailk/go-shopee/app/usecase/category"
 	"github.com/knailk/go-shopee/app/usecase/product"
-	"github.com/labstack/echo"
 )
 
-// represent a response error struct
-type ResponseError struct {
-	Message string `json:"message"`
+// listCategories return http handler
+func listCategories(categoryService category.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		errorMessage := "Error reading categories"
+		data, err := categoryService.ListCategories()
+		w.Header().Set("Content-Type", "application/json")
+		if err != nil && err != entity.ErrNotFound {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
+		if data == nil {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(errorMessage))
+			return
+		}
+		if err := json.NewEncoder(w).Encode(data); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+		}
+	})
 }
 
-// represent http handler for product
-type ProductHandler struct {
-	PUsecase product.Usecase
+func getCategory(productService product.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//transmit category service to get cate id
+	})
+
 }
 
-// initialize the product/ resources endpoint
-func NewProductHandler(e *echo.Echo, pu product.Usecase) {
-	handler := &ProductHandler{
-		PUsecase: pu,
-	}
-	e.GET("/products:category", handler.List)
-	e.GET("/products:query", handler.Search)
-	e.POST("/products", handler.Create)
-	e.GET("/products/:id", handler.GetByID)
-	e.PUT("/products/:id", handler.Update)
-	e.DELETE("/products/:id", handler.Delete)
-}
+func MakeProductHandlers(r *mux.Router, productService product.Service, categoryService category.Service) {
+	r.Handle("", listCategories(categoryService)).Methods(http.MethodGet)
+	
+	r.Handle("/{cate_id}", getCategory(productService)).Methods(http.MethodGet)
 
-// TODO: implement function product handler
-func (p *ProductHandler) List(c echo.Context) error {
-	return nil
-}
+	
 
-func (p *ProductHandler) Search(c echo.Context) error {
-	return nil
-}
-
-func (p *ProductHandler) Create(c echo.Context) error {
-	return nil
-}
-
-func (p *ProductHandler) GetByID(c echo.Context) error {
-	return nil
-}
-
-func (p *ProductHandler) Update(c echo.Context) error {
-	return nil
-}
-
-func (p *ProductHandler) Delete(c echo.Context) error {
-	return nil
 }

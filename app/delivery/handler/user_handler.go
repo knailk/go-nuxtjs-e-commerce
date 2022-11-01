@@ -44,6 +44,8 @@ func listUsers(service user.Service) http.Handler {
 				Name:   d.Name,
 				Phone:  d.Phone,
 				Gender: d.Gender,
+				CreatedAt: d.CreatedAt,
+				UpdatedAt: d.UpdatedAt,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -84,7 +86,7 @@ func createUser(service user.Service) http.Handler {
 			Email:  input.Email,
 			Name:   input.Name,
 			Phone:  input.Phone,
-			Gender: input.Gender,
+			Gender: input.Gender,			
 		}
 
 		w.WriteHeader(http.StatusCreated)
@@ -125,6 +127,8 @@ func getUser(service user.Service) http.Handler {
 			Name:   data.Name,
 			Phone:  data.Phone,
 			Gender: data.Gender,
+			CreatedAt: data.CreatedAt,
+				UpdatedAt: data.UpdatedAt,
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
