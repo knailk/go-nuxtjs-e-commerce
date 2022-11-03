@@ -9,9 +9,9 @@ import (
 // User data.
 type User struct {
 	UserId    ID     `json:"id"`
-	Email     string `json:"email"`
+	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password"`
-	Name      string `json:"name"`
+	Name      string `json:"name" validate:"required"`
 	Gender    string `json:"gender"`
 	Phone     string `json:"phone"`
 	Role      Role   `json:"role"`
@@ -49,6 +49,7 @@ func NewUser(email, password, name, gender, phone string, role Role) (*User, err
 	return u, nil
 }
 
+//GeneratePassword return strirng hash of the password
 func GeneratePassword(raw string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(raw), 10)
 	if err != nil {
@@ -56,3 +57,14 @@ func GeneratePassword(raw string) (string, error) {
 	}
 	return string(hash), nil
 }
+
+// func (u *User) Validate() error {
+// 	//validate email
+// 	_, err := mail.ParseAddress(u.Email)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	//validate 
+// 	errs.Add
+// 	return nil
+// }
