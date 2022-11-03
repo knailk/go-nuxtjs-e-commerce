@@ -21,7 +21,7 @@ func NewUserRepo(db *sql.DB) user.Repository {
 
 // Get User by id.
 func (r *UserRepo) Get(id entity.ID) (*entity.User, error) {
-	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updateAt from user where id = ? and isDeleted = 0`)
+	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updatedAt from user where id = ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *UserRepo) Get(id entity.ID) (*entity.User, error) {
 
 // Search User by query.
 func (r *UserRepo) Search(query string) ([]*entity.User, error) {
-	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updateAt from user where name like ? and isDeleted = 0`)
+	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updatedAt from user where name like ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (r *UserRepo) Search(query string) ([]*entity.User, error) {
 
 // List get all user
 func (r *UserRepo) List() ([]*entity.User, error) {
-	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updateAt from user where isDeleted = 0`)
+	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updatedAt from user where isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -85,10 +85,10 @@ func (r *UserRepo) Create(e *entity.User) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
 		insert into user (id, email, password, name, gender, phone, role, createdAt, updatedAt, isDeleted) 
 		values(?,?,?,?,?,?,?,?,?,?)`)
-	defer stmt.Close()
 	if err != nil {
 		return e.UserId, err
 	}
+	defer stmt.Close()
 	_, err = stmt.Exec(
 		e.UserId,
 		e.Email,

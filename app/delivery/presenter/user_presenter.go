@@ -2,7 +2,7 @@ package presenter
 
 import "github.com/knailk/go-shopee/app/entity"
 
-//User data
+//User data present
 type User struct {
 	ID        entity.ID `json:"id"`
 	Email     string    `json:"email"`

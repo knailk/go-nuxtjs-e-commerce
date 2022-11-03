@@ -39,11 +39,11 @@ func listUsers(service user.Service) http.Handler {
 		var toJ []*presenter.User
 		for _, d := range data {
 			toJ = append(toJ, &presenter.User{
-				ID:     d.UserId,
-				Email:  d.Email,
-				Name:   d.Name,
-				Phone:  d.Phone,
-				Gender: d.Gender,
+				ID:        d.UserId,
+				Email:     d.Email,
+				Name:      d.Name,
+				Phone:     d.Phone,
+				Gender:    d.Gender,
 				CreatedAt: d.CreatedAt,
 				UpdatedAt: d.UpdatedAt,
 			})
@@ -81,16 +81,15 @@ func createUser(service user.Service) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		toJ := &presenter.User{
-			ID:     id,
-			Email:  input.Email,
-			Name:   input.Name,
-			Phone:  input.Phone,
-			Gender: input.Gender,			
-		}
-
+		// toJ := &presenter.User{
+		// 	ID:     id,
+		// 	Email:  input.Email,
+		// 	Name:   input.Name,
+		// 	Phone:  input.Phone,
+		// 	Gender: input.Gender,
+		// }
 		w.WriteHeader(http.StatusCreated)
-		if err := json.NewEncoder(w).Encode(toJ); err != nil {
+		if err := json.NewEncoder(w).Encode(id); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
@@ -122,13 +121,13 @@ func getUser(service user.Service) http.Handler {
 			return
 		}
 		toJ := &presenter.User{
-			ID:     data.UserId,
-			Email:  data.Email,
-			Name:   data.Name,
-			Phone:  data.Phone,
-			Gender: data.Gender,
+			ID:        data.UserId,
+			Email:     data.Email,
+			Name:      data.Name,
+			Phone:     data.Phone,
+			Gender:    data.Gender,
 			CreatedAt: data.CreatedAt,
-				UpdatedAt: data.UpdatedAt,
+			UpdatedAt: data.UpdatedAt,
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -165,12 +164,12 @@ func updateUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error update user"
 		var input struct {
-			UserID   string      `json:"id"`
-			Email    string      `json:"email"`
-			Password string      `json:"password"`
-			Name     string      `json:"name"`
-			Gender   string      `json:"gender"`
-			Phone    string      `json:"phone"`
+			UserID   string `json:"id"`
+			Email    string `json:"email"`
+			Password string `json:"password"`
+			Name     string `json:"name"`
+			Gender   string `json:"gender"`
+			Phone    string `json:"phone"`
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&input)

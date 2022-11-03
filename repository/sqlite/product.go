@@ -55,6 +55,9 @@ func (r *ProductRepo) Search(query string) ([]*entity.Product, error) {
 	for rows.Next() {
 		var p entity.Product
 		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		if err != nil {
+			return nil, err
+		}
 		result = append(result, &p)
 	}
 	return result, nil
@@ -74,6 +77,9 @@ func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
 	for rows.Next() {
 		var p entity.Product
 		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		if err != nil{
+			return nil, err
+		}
 		result = append(result, &p)
 	}
 	return result, nil
@@ -82,12 +88,12 @@ func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
 // Create a product.
 func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
-	insert into product(id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId,isDeleted) 
-	value (?,?,?,?,?,?,?,?)`)
-	defer stmt.Close()
+	insert into product(id, name, price, description, quantitySold, availableUnits, createdAt, updatedAt, categoryId, isDeleted) 
+	values (?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return e.ProductID, err
 	}
+	defer stmt.Close()
 	_, err = stmt.Exec(
 		e.ProductID,
 		e.Name,
@@ -98,12 +104,12 @@ func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 		e.CreatedAt,
 		e.UpdatedAt,
 		e.CategoryID,
-		e.IsDeleted,
+		false,
 	)
 	if err != nil {
 		return e.ProductID, err
 	}
-	return entity.NewID(), nil
+	return e.ProductID, nil
 }
 
 // Update a product.
