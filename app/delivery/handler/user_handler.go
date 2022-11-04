@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -57,20 +56,20 @@ func listUsers(service user.Service) http.Handler {
 	})
 }
 
+// createUser create new user
 func createUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding user"
 		var input struct {
-			Email    string      `json:"email" validate:"required,email,unique"`  
-			Password string      `json:"password" validate:"min=8,passwd"`
-			Name     string      `json:"name" validate:"required, min=2,max=50"`
-			Gender   string      `json:"gender" validate:"oneof=Male Female"`
-			Phone    string      `json:"phone" validate:"min=9, max=11"`
-			Role     entity.Role `json:"role" validate:"oneof=Admin Customer Seller"`
+			Email    string      `json:"email" validate:"required,email"`
+			Password string      `json:"password" validate:"omitempty,min=8,passwd"`
+			Name     string      `json:"name" validate:"required,min=2,max=50"`
+			Gender   string      `json:"gender" validate:"omitempty,oneof=Male Female"`
+			Phone    string      `json:"phone" validate:"omitempty,min=9,max=11"`
+			Role     entity.Role `json:"role" validate:"omitempty,oneof=Admin Customer Seller"`
 		}
-
-		v:= validator.New()
-		_ = v.RegisterValidation("passwd",func(fl validator.FieldLevel) bool {
+		validate := validator.New()
+		_ = validate.RegisterValidation("passwd", func(fl validator.FieldLevel) bool {
 			return len(fl.Field().String()) > 8 && len(fl.Field().String()) < 20
 		})
 
@@ -81,6 +80,13 @@ func createUser(service user.Service) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
+		if err := validate.Struct(input); err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
+
 		id, err := service.CreateUser(input.Email, input.Password, input.Name, input.Gender, input.Phone, input.Role)
 		if err != nil {
 			log.Println(err.Error())
@@ -88,13 +94,6 @@ func createUser(service user.Service) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		// toJ := &presenter.User{
-		// 	ID:     id,
-		// 	Email:  input.Email,
-		// 	Name:   input.Name,
-		// 	Phone:  input.Phone,
-		// 	Gender: input.Gender,
-		// }
 		w.WriteHeader(http.StatusCreated)
 		if err := json.NewEncoder(w).Encode(id); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -104,6 +103,7 @@ func createUser(service user.Service) http.Handler {
 	})
 }
 
+// getUser get user by id
 func getUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error get user by id"
@@ -143,6 +143,7 @@ func getUser(service user.Service) http.Handler {
 	})
 }
 
+// deleteUser delete a user
 func deleteUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error delete user"
@@ -172,19 +173,27 @@ func updateUser(service user.Service) http.Handler {
 		errorMessage := "Error update user"
 		var input struct {
 			UserID   string `json:"id"`
-			Email    string `json:"email"`
-			Password string `json:"password"`
-			Name     string `json:"name"`
-			Gender   string `json:"gender"`
-			Phone    string `json:"phone"`
+			Email    string `json:"email" validate:"required,email"`
+			Password string `json:"password" validate:"required,min=8,passwd"`
+			Name     string `json:"name" validate:"omitempty,min=2,max=50"`
+			Gender   string `json:"gender" validate:"omitempty,oneof=Male Female"`
+			Phone    string `json:"phone" validate:"required,min=9,max=11"`
 		}
-
+		validate := validator.New()
+		_ = validate.RegisterValidation("passwd", func(fl validator.FieldLevel) bool {
+			return len(fl.Field().String()) > 8 && len(fl.Field().String()) < 20
+		})
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
-			fmt.Printf("err1: %v", err)
+			return
+		}
+		if err := validate.Struct(input); err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
 			return
 		}
 		id, err := entity.StringToID(input.UserID)
@@ -192,7 +201,6 @@ func updateUser(service user.Service) http.Handler {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
-			fmt.Printf("err2: %v", err)
 			return
 		}
 		u := entity.User{
@@ -208,7 +216,6 @@ func updateUser(service user.Service) http.Handler {
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
-			fmt.Printf("err3: %v", err)
 			return
 		}
 		if err := json.NewEncoder(w).Encode("Update user successful"); err != nil {

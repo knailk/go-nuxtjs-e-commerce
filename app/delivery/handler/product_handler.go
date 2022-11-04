@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
@@ -47,7 +48,6 @@ func getProducts(productService product.Service, categoryService category.Servic
 			w.Write([]byte(errorMessage))
 			return
 		}
-
 		category, err := categoryService.GetCategory(int64(id))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -58,6 +58,7 @@ func getProducts(productService product.Service, categoryService category.Servic
 
 		w.Header().Set("Content-type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
+			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
@@ -100,6 +101,11 @@ func getProduct(productService product.Service, categoryService category.Service
 			return
 		}
 		category, err := categoryService.GetCategory(int64(categoryId))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
 		//get product data
 		productId, err := entity.StringToID(vars["product_id"])
 		if err != nil {
@@ -144,13 +150,14 @@ func createProduct(productService product.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding product"
 		var input struct {
-			Name           string `json:"name"`
-			Price          int64  `json:"price"`
-			Description    string `json:"description"`
+			Name           string `json:"name" validate:"required,min=2,max=50"`
+			Price          int64  `json:"price" validate:"omitempty"`
+			Description    string `json:"description" validate:"omitempty"`
 			QuantitySold   int64  `json:"quantitySold"`
 			AvailableUnits int64  `json:"availableUnits"`
 			Category       int64  `json:"categoryId"`
 		}
+		validate := validator.New()
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
 			log.Println(err.Error())
@@ -158,8 +165,14 @@ func createProduct(productService product.Service) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		id, err := productService.CreateProduct(input.Name,input.Price,input.Description,input.QuantitySold,input.AvailableUnits,input.Category)
-		if err != nil{
+		if err := validate.Struct(input); err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
+		id, err := productService.CreateProduct(input.Name, input.Price, input.Description, input.QuantitySold, input.AvailableUnits, input.Category)
+		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))

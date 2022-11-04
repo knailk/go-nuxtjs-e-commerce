@@ -65,7 +65,7 @@ func (r *ProductRepo) Search(query string) ([]*entity.Product, error) {
 
 // List product by category id.
 func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select * from product where categoryID = ? and isDeleted = 0`)
+	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId from product where categoryID = ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
