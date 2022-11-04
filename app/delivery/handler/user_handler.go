@@ -61,25 +61,17 @@ func createUser(service user.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding user"
 		var input struct {
-			Email    string      `json:"email" validate: "required, email, unique"`
+			Email    string      `json:"email" validate:"required,email,unique"`  
 			Password string      `json:"password" validate:"min=8,passwd"`
 			Name     string      `json:"name" validate:"required, min=2,max=50"`
-			Gender   string      `json:"gender" validate: "oneof=Male Female"`
-			Phone    string      `json:"phone" validate: "min=9, max=11"`
-			Role     entity.Role `json:"role" validate: "oneof=Admin Customer Seller"`
+			Gender   string      `json:"gender" validate:"oneof=Male Female"`
+			Phone    string      `json:"phone" validate:"min=9, max=11"`
+			Role     entity.Role `json:"role" validate:"oneof=Admin Customer Seller"`
 		}
 
-		//validate input
 		v:= validator.New()
-		_ = v.RegisterTranslation("passwd", trans, func(ut ut.Translator) error {
-			return ut.Add("passwd", "{0} is not strong enough", true) // see universal-translator for details
-		}, func(ut ut.Translator, fe validator.FieldError) string {
-			t, _ := ut.T("passwd", fe.Field())
-			return t
-		})
-	
-		_ = v.RegisterValidation("passwd", func(fl validator.FieldLevel) bool {
-			return len(fl.Field().String()) > 6
+		_ = v.RegisterValidation("passwd",func(fl validator.FieldLevel) bool {
+			return len(fl.Field().String()) > 8 && len(fl.Field().String()) < 20
 		})
 
 		err := json.NewDecoder(r.Body).Decode(&input)
