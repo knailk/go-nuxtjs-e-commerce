@@ -12,6 +12,8 @@ type Reader interface {
 	Search(query string) ([]*entity.User, error)
 	//get list User
 	List() ([]*entity.User, error)
+	//Auth get user by email
+	Auth(email string) (*entity.User, error)
 }
 
 //Writer interface
@@ -32,6 +34,7 @@ type Usecase interface{
 	GetUser(id entity.ID) (*entity.User, error)
 	SearchUsers(query string) ([]*entity.User, error)
 	ListUsers() ([]*entity.User, error)
+	AuthUser(mail string) (*entity.User, error)
 	CreateUser(user entity.User) (entity.ID, error)
 	UpdateUser(e *entity.User) error
 	DeleteUser(id entity.ID) error

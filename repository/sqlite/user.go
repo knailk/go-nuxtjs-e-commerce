@@ -80,6 +80,26 @@ func (r *UserRepo) List() ([]*entity.User, error) {
 	return result, nil
 }
 
+//Auth get user by email
+func (r *UserRepo) Auth(mail string)(*entity.User, error){
+	stmt, err := r.db.Prepare(`select id,email,password,name,gender,phone,role,createdAt, updatedAt from user where email = ? and isDeleted = 0`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(mail)
+	if err != nil {
+		return nil, err
+	}
+	var u entity.User
+	for rows.Next() {
+		err = rows.Scan(&u.UserId, &u.Email,&u.Password, &u.Name, &u.Gender, &u.Phone,&u.Role, &u.CreatedAt, &u.UpdatedAt)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
 // Create a User.
 func (r *UserRepo) Create(e *entity.User) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`

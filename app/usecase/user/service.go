@@ -28,6 +28,9 @@ func (s *Service) SearchUsers(query string) ([]*entity.User, error){
 func (s *Service) ListUsers() ([]*entity.User, error){
 	return s.repo.List()
 }
+func (s *Service) AuthUser(mail string) (*entity.User, error){
+	return s.repo.Auth(mail)
+}
 func (s *Service) CreateUser(email string, password string, name string, gender string, phone string, role entity.Role) (entity.ID, error){
 	e, err := entity.NewUser(email, password, name, gender,phone, role)
 	if err != nil {

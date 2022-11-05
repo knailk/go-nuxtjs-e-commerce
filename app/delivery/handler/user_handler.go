@@ -5,10 +5,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
+	"github.com/knailk/go-shopee/app/config"
+	"github.com/knailk/go-shopee/app/delivery/middleware"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
 	"github.com/knailk/go-shopee/app/usecase/user"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -225,6 +229,97 @@ func updateUser(service user.Service) http.Handler {
 	})
 }
 
+func signIn(service user.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		errorMessage := "Error login"
+		var input struct {
+			UserName string `json:"userName" validate:"required"`
+			Password string `json:"password" validate:"required"`
+		}
+		validate := validator.New()
+		err := json.NewDecoder(r.Body).Decode(&input)
+		if err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		if err := validate.Struct(input); err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		authUser, err := service.AuthUser(input.UserName)
+		if err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		if err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		if err = bcrypt.CompareHashAndPassword([]byte(authUser.Password), []byte(input.Password)); err != nil {
+			logError(err, "Incorrect password", w)
+			return
+		}
+
+		validToken, err := middleware.GenerateJWT(authUser.Email, authUser.Role)
+		if err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		var token struct {
+			Role        entity.Role `json:"role"`
+			Email       string      `json:"email"`
+			TokenString string      `json:"token"`
+		}
+		token.Email = authUser.Email
+		token.Role = authUser.Role
+		token.TokenString = validToken
+
+		if err := json.NewEncoder(w).Encode(token); err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(errorMessage))
+		}
+	})
+}
+
+func isAuthorized(handler http.HandlerFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		//get token
+		if r.Header["Token"] == nil {
+			logError(nil, "No token found", w)
+			return
+		}
+		var mySigningKey = []byte(config.SECRET_KEY)
+		token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				logError(nil, "There was an error in parsing", w)
+			}
+			return mySigningKey, nil
+		})
+		if err != nil {
+			logError(err, "Your Token has been expired", w)
+			return
+		}
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			if claims["role"] == "Admin" {
+				r.Header.Set("Role", "Admin")
+				return
+			} else if claims["role"] == "Customer" {
+				r.Header.Set("Role", "Customer")
+				return
+			} else if claims["role"] == "Seller" {
+				r.Header.Set("Role", "Seller")
+				return
+			}
+		}
+	})
+}
+
+func logError(err error, errorMessage string, w http.ResponseWriter) {
+	log.Println(err.Error())
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(errorMessage))
+}
+
 // func MakeUserHandlers(r *mux.Router, n negroni.Negroni, service user.Service) {
 // 	r.Handle("/user", n.With(
 // 		negroni.Wrap(listUsers(service)),
@@ -253,4 +348,8 @@ func MakeUserHandlers(r *mux.Router, service user.Service) {
 	r.Handle("/user/{id}", deleteUser(service)).Methods(http.MethodDelete)
 
 	r.Handle("/user", updateUser(service)).Methods(http.MethodPut)
+
+	r.Handle("/login", signIn(service)).Methods(http.MethodPost)
+
+	r.Handle("/admin", isAuthorized(middleware.AdminIndex)).Methods(http.MethodGet)
 }

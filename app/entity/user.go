@@ -49,9 +49,9 @@ func NewUser(email, password, name, gender, phone string, role Role) (*User, err
 	return u, nil
 }
 
-//GeneratePassword return strirng hash of the password
+//GeneratePassword return string hash of the password
 func GeneratePassword(raw string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(raw), 10)
+	hash, err := bcrypt.GenerateFromPassword([]byte(raw), 8)
 	if err != nil {
 		return "", err
 	}
