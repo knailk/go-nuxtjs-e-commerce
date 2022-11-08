@@ -1,20 +1,22 @@
 package sqlite
 
-import "database/sql"
+import (
+	"database/sql"
 
-import "github.com/knailk/go-shopee/repository"
+	"github.com/knailk/go-shopee/repository"
+)
 
 type DAO interface {
-	NewAuthRepo() AuthQuery
-	NewCategoryRepo() CategoryQuery
-	NewUserRepo() UserQuery
-	NewProductRepo() ProductQuery
+	NewAuthRepo() repository.AuthQuery
+	NewCategoryRepo() repository.CategoryQuery
+	NewUserRepo() repository.UserQuery
+	NewProductRepo() repository.ProductQuery
 }
-type dao struct{
+type dao struct {
 	db *sql.DB
 }
 
-func NewDAO(db *sql.DB) repository.DAO{
+func NewDAO(db *sql.DB) DAO {
 	return &dao{
 		db: db,
 	}

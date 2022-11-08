@@ -10,12 +10,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase/category"
-	"github.com/knailk/go-shopee/app/usecase/product"
+	"github.com/knailk/go-shopee/app/usecase"
 )
 
 // listCategories return http handler
-func listCategories(categoryService category.Service) http.Handler {
+func listCategories(categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error reading categories"
 		data, err := categoryService.ListCategories()
@@ -38,7 +37,7 @@ func listCategories(categoryService category.Service) http.Handler {
 }
 
 // getProducts get list product by category id
-func getProducts(productService product.Service, categoryService category.Service) http.Handler {
+func getProducts(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error get products by category id"
 		vars := mux.Vars(r)
@@ -89,7 +88,7 @@ func getProducts(productService product.Service, categoryService category.Servic
 	})
 }
 
-func getProduct(productService product.Service, categoryService category.Service) http.Handler {
+func getProduct(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error get product by id"
 		vars := mux.Vars(r)
@@ -146,7 +145,7 @@ func getProduct(productService product.Service, categoryService category.Service
 }
 
 // createProduct create new product by admin
-func createProduct(productService product.Service) http.Handler {
+func createProduct(productService usecase.ProductUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding product"
 		var input struct {
@@ -171,7 +170,8 @@ func createProduct(productService product.Service) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		id, err := productService.CreateProduct(input.Name, input.Price, input.Description, input.QuantitySold, input.AvailableUnits, input.Category)
+		p := entity.NewProduct(input.Name, input.Price, input.Description, input.QuantitySold, input.AvailableUnits, input.Category)
+		id, err := productService.CreateProduct(p)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -187,7 +187,7 @@ func createProduct(productService product.Service) http.Handler {
 	})
 }
 
-func MakeProductHandlers(r *mux.Router, productService product.Service, categoryService category.Service) {
+func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
 	r.Handle("/", listCategories(categoryService)).Methods(http.MethodGet)
 
 	r.Handle("/{cate_id}", getProducts(productService, categoryService)).Methods(http.MethodGet)

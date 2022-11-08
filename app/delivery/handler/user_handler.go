@@ -5,18 +5,18 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/config"
 	"github.com/knailk/go-shopee/app/delivery/middleware"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase/user"
-	"github.com/go-playground/validator/v10"
+	"github.com/knailk/go-shopee/app/usecase"
 )
 
 // listUsers return http handler
-func listUsers(service user.Service) http.Handler {
+func listUsers(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error reading users"
 		var data []*entity.User
@@ -59,7 +59,7 @@ func listUsers(service user.Service) http.Handler {
 }
 
 // createUser create new user
-func createUser(service user.Service) http.Handler {
+func createUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error adding user"
 		var input struct {
@@ -88,8 +88,14 @@ func createUser(service user.Service) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-
-		id, err := service.CreateUser(input.Email, input.Password, input.Name, input.Gender, input.Phone, input.Role)
+		e, err := entity.NewUser(input.Email, input.Password, input.Name, input.Gender, input.Phone, input.Role)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(errorMessage))
+			return
+		}
+		id, err := service.CreateUser(e)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -106,7 +112,7 @@ func createUser(service user.Service) http.Handler {
 }
 
 // getUser get user by id
-func getUser(service user.Service) http.Handler {
+func getUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error get user by id"
 		vars := mux.Vars(r)
@@ -146,7 +152,7 @@ func getUser(service user.Service) http.Handler {
 }
 
 // deleteUser delete a user
-func deleteUser(service user.Service) http.Handler {
+func deleteUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error delete user"
 		vars := mux.Vars(r)
@@ -170,7 +176,7 @@ func deleteUser(service user.Service) http.Handler {
 	})
 }
 
-func updateUser(service user.Service) http.Handler {
+func updateUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error update user"
 		var input struct {
@@ -227,8 +233,6 @@ func updateUser(service user.Service) http.Handler {
 	})
 }
 
-
-
 func isAuthorized(handler http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//get token
@@ -269,8 +273,7 @@ func logError(err error, errorMessage string, w http.ResponseWriter) {
 	w.Write([]byte(errorMessage))
 }
 
-
-func MakeUserHandlers(r *mux.Router, service user.Service) {
+func MakeUserHandlers(r *mux.Router, service usecase.UserUsecase) {
 	r.Handle("/admin/user", listUsers(service)).Methods(http.MethodGet)
 
 	r.Handle("/admin/user", createUser(service)).Methods(http.MethodPost)

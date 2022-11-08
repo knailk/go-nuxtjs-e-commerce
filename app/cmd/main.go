@@ -14,11 +14,8 @@ import (
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/handler"
+	"github.com/knailk/go-shopee/app/usecase"
 
-	"github.com/knailk/go-shopee/app/usecase/auth"
-	"github.com/knailk/go-shopee/app/usecase/category"
-	"github.com/knailk/go-shopee/app/usecase/product"
-	"github.com/knailk/go-shopee/app/usecase/user"
 	"github.com/knailk/go-shopee/repository/sqlite"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -53,10 +50,10 @@ func main() {
 
 	// categoryRepo := sqlite.NewCategoryRepo(db)
 	// categoryService := category.NewService(categoryRepo)
-	userService := user.NewService(dao.NewUserRepo())
-	productService := product.NewService(dao.NewProductRepo())
-	categoryService := category.NewService(dao.NewCategoryRepo())
-	authService := auth.NewService(dao.NewAuthRepo())
+	userService := usecase.NewUserService(dao.NewUserRepo())
+	productService := usecase.NewProductService(dao.NewProductRepo())
+	categoryService := usecase.NewCategoryService(dao.NewCategoryRepo())
+	authService := usecase.NewAuthService(dao.NewAuthRepo())
 
 	
 	if err != nil {
@@ -65,9 +62,9 @@ func main() {
 	r := mux.NewRouter()
 	
 	//handler
-	handler.MakeUserHandlers(r,*userService)
-	handler.MakeProductHandlers(r, *productService, *categoryService)
-	handler.MakeAuthHandlers(r,*authService)
+	handler.MakeUserHandlers(r, userService)
+	handler.MakeProductHandlers(r, productService, categoryService)
+	handler.MakeAuthHandlers(r,authService)
 	
 	http.Handle("/", r)
 	http.Handle("/metrics", promhttp.Handler())

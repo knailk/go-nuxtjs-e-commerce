@@ -8,11 +8,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/middleware"
 	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase/auth"
+	"github.com/knailk/go-shopee/app/usecase"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func signIn(service auth.Service) http.Handler {
+func signIn(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "Error login"
 		var input struct {
@@ -60,7 +60,7 @@ func signIn(service auth.Service) http.Handler {
 	})
 }
 
-func MakeAuthHandlers(r *mux.Router, service auth.Service) {
+func MakeAuthHandlers(r *mux.Router, service usecase.AuthUsecase) {
 
 	r.Handle("/login", signIn(service)).Methods(http.MethodPost)
 }
