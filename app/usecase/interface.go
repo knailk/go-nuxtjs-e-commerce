@@ -4,9 +4,9 @@ import "github.com/knailk/go-shopee/app/entity"
 
 // AuthUsecase interface.
 type AuthUsecase interface {
-	SignUp(user *entity.User) (int64, error)
+	SignUp(user *entity.User) error
 	SignIn(email string) (*entity.User, error)
-	Logout(userID entity.ID) error
+	//Logout(userID entity.ID) error
 }
 
 //UseCase interface.

@@ -30,9 +30,6 @@ func (r *AuthRepo) SignIn(email string) (*entity.User, error) {
 	return &u, nil
 }
 
-func (r *AuthRepo) SignUp(user *entity.User) (int64, error) {
-	return 0, nil
-}
 
 func (r *AuthRepo) Logout(userID entity.ID) error {
 	return nil

@@ -5,26 +5,25 @@ import (
 	"github.com/knailk/go-shopee/repository"
 )
 
-
-
 // Service product usecase.
 type AuthService struct {
-	repo repository.AuthQuery
+	dao repository.DAO
 }
 
 // NewService create new service.
-func NewAuthService(r repository.AuthQuery) AuthUsecase {
+func NewAuthService(dao repository.DAO) AuthUsecase {
 	return &AuthService{
-		repo: r,
+		dao: dao,
 	}
 }
-func (s *AuthService) SignUp(user *entity.User) (int64, error) {
-	return s.repo.SignUp(user)
+func (s *AuthService) SignUp(user *entity.User) error {
+	_,err :=s.dao.NewUserRepo().Create(user)
+	return err
 }
 func (s *AuthService) SignIn(email string) (*entity.User, error) {
-	return s.repo.SignIn(email)
+	return s.dao.NewUserRepo().GetUserByEmail(email)
 }
 
-func (s *AuthService) Logout(userID entity.ID) error {
-	return s.repo.Logout(userID)
-}
+// func (s *AuthService) Logout(userID entity.ID) error {
+// 	return s.dao.NewAuthRepo().Logout(userID)
+// }

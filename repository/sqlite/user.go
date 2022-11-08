@@ -31,6 +31,26 @@ func (r *UserRepo) Get(id entity.ID) (*entity.User, error) {
 	}
 	return &u, nil
 }
+//GetUserByEmail return user entity
+func (r *UserRepo) GetUserByEmail(email string) (*entity.User, error) {
+	stmt, err := r.db.Prepare(`select id,email,password,name,gender,phone,role,createdAt, updatedAt from user where email = ? and isDeleted = 0`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(email)
+	if err != nil {
+		return nil, err
+	}
+	var u entity.User
+	for rows.Next() {
+		err = rows.Scan(&u.UserId, &u.Email, &u.Password, &u.Name, &u.Gender, &u.Phone, &u.Role, &u.CreatedAt, &u.UpdatedAt)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
 
 // Search User by query.
 func (r *UserRepo) Search(query string) ([]*entity.User, error) {

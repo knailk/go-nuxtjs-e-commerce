@@ -9,18 +9,18 @@ import (
 
 // Service product usecase.
 type CategoryService struct {
-	repo repository.CategoryQuery
+	dao repository.DAO
 }
 
 // NewService create new service.
-func NewCategoryService(r repository.CategoryQuery) CategoryUsecase {
+func NewCategoryService(dao repository.DAO) CategoryUsecase {
 	return &CategoryService{
-		repo: r,
+		dao: dao,
 	}
 }
 func (s *CategoryService) GetCategory(id int64) (*entity.Category, error) {
-	return s.repo.Get(id)
+	return s.dao.NewCategoryRepo().Get(id)
 }
 func (s *CategoryService) ListCategories() ([]*entity.Category, error) {
-	return s.repo.List()
+	return s.dao.NewCategoryRepo().List()
 }

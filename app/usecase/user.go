@@ -10,37 +10,37 @@ import (
 
 
 type UserService struct {
-	repo repository.UserQuery
+	dao repository.DAO
 }
 
 // create new service
-func NewUserService(r repository.UserQuery) UserUsecase {
+func NewUserService(dao repository.DAO) UserUsecase {
 	return &UserService{
-		repo: r,
+		dao: dao,
 	}
 }
 
 
 func (s *UserService) GetUser(id entity.ID) (*entity.User, error){
-	return s.repo.Get(id)
+	return s.dao.NewUserRepo().Get(id)
 }
 
 func (s *UserService) SearchUsers(query string) ([]*entity.User, error){
-	return s.repo.Search(strings.ToLower(query))
+	return s.dao.NewUserRepo().Search(strings.ToLower(query))
 }
 
 func (s *UserService) ListUsers() ([]*entity.User, error){
-	return s.repo.List()
+	return s.dao.NewUserRepo().List()
 }
 
 func (s *UserService) CreateUser(e *entity.User) (entity.ID, error){
 	
-	return s.repo.Create(e)
+	return s.dao.NewUserRepo().Create(e)
 }
 
 func (s *UserService) UpdateUser(e *entity.User) error{
 	e.UpdatedAt = time.Now().Format(time.RFC3339)
-	return s.repo.Update(e)
+	return s.dao.NewUserRepo().Update(e)
 }
 
 func (s *UserService) DeleteUser(id entity.ID) error{
@@ -51,5 +51,5 @@ func (s *UserService) DeleteUser(id entity.ID) error{
 	if err != nil {
 		return err
 	}
-	return s.repo.Delete(id)
+	return s.dao.NewUserRepo().Delete(id)
 }

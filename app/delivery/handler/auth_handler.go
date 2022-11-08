@@ -25,10 +25,12 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 			logError(err, errorMessage, w)
 			return
 		}
+		//validate
 		if err := validate.Struct(input); err != nil {
 			logError(err, errorMessage, w)
 			return
 		}
+		//get user
 		authUser,err := service.SignIn(input.UserName)
 		if err != nil {
 			logError(err, errorMessage, w)
@@ -60,7 +62,63 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 	})
 }
 
+func signUp(service usecase.AuthUsecase) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		errorMessage := "Error sign up"
+		var input struct {
+			Email string `json:"email" validate:"required"`
+			Password string `json:"password" validate:"required"`
+			Name string `string:"name" validate:"required"`
+		}
+		//validate
+		validate := validator.New()
+		err := json.NewDecoder(r.Body).Decode(&input)
+		if err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		if err := validate.Struct(input); err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		//create user
+		user,err := entity.NewUser(input.Email,input.Password,input.Name,"","","Customer")
+		if err != nil {
+			if err != nil {
+				logError(err, errorMessage, w)
+				return
+			}
+		}
+		err := service.SignUp(user)
+		if err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+
+		validToken, err := middleware.GenerateJWT(user.Email, user.Role)
+		if err != nil {
+			logError(err, errorMessage, w)
+			return
+		}
+		var token struct {
+			Role        entity.Role `json:"role"`
+			Email       string      `json:"email"`
+			TokenString string      `json:"token"`
+		}
+		token.Email = user.Email
+		token.Role = user.Role
+		token.TokenString = validToken
+
+		if err := json.NewEncoder(w).Encode(token); err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(errorMessage))
+		}
+	})
+}
+
 func MakeAuthHandlers(r *mux.Router, service usecase.AuthUsecase) {
 
-	r.Handle("/login", signIn(service)).Methods(http.MethodPost)
+	r.Handle("/signin", signIn(service)).Methods(http.MethodPost)
+
+	r.Handle("/signup", signUp(service)).Methods(http.MethodPost)
 }

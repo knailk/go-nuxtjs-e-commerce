@@ -2,9 +2,17 @@ package repository
 
 import "github.com/knailk/go-shopee/app/entity"
 
+
+type DAO interface {
+	//NewAuthRepo() AuthQuery
+	NewCategoryRepo() CategoryQuery
+	NewUserRepo() UserQuery
+	NewProductRepo() ProductQuery
+}
 //Repository interface
 type UserQuery interface {
 	Get(id entity.ID) (*entity.User, error)
+	GetUserByEmail(email string) (*entity.User, error)
 	Search(query string) ([]*entity.User, error)
 	List() ([]*entity.User, error)
 	Create(e *entity.User) (entity.ID, error)
@@ -28,12 +36,12 @@ type CategoryQuery interface {
 	List() ([]*entity.Category, error)
 }
 
-//AuthQuery interface
-type AuthQuery interface {
-	SignUp(user *entity.User) (int64, error)
-	SignIn(email string) (*entity.User, error)
-	Logout(userID entity.ID) error
-}
+// //AuthQuery interface
+// type AuthQuery interface {
+// 	//SignUp(user *entity.User) error
+// 	SignIn(email string) (*entity.User, error)
+// 	Logout(userID entity.ID) error
+// }
 
 
 
