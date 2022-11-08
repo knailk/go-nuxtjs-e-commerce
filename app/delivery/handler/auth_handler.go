@@ -89,7 +89,7 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 				return
 			}
 		}
-		err := service.SignUp(user)
+		err = service.SignUp(user)
 		if err != nil {
 			logError(err, errorMessage, w)
 			return

@@ -50,10 +50,10 @@ func main() {
 
 	// categoryRepo := sqlite.NewCategoryRepo(db)
 	// categoryService := category.NewService(categoryRepo)
-	userService := usecase.NewUserService(dao.NewUserRepo())
-	productService := usecase.NewProductService(dao.NewProductRepo())
-	categoryService := usecase.NewCategoryService(dao.NewCategoryRepo())
-	authService := usecase.NewAuthService(dao.NewAuthRepo())
+	userService := usecase.NewUserService(dao)
+	productService := usecase.NewProductService(dao)
+	categoryService := usecase.NewCategoryService(dao)
+	authService := usecase.NewAuthService(dao)
 
 	
 	if err != nil {
