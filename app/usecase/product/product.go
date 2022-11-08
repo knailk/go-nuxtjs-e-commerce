@@ -4,14 +4,25 @@ import (
 	"strings"
 
 	"github.com/knailk/go-shopee/app/entity"
+	"github.com/knailk/go-shopee/repository"
 )
+
+//UseCase interface.
+type Usecase interface {
+	GetProduct(id entity.ID) (*entity.Product, error)
+	SearchProducts(query string) ([]*entity.Product, error)
+	ListProducts(entity.ID) ([]*entity.Product, error)
+	CreateProduct(e *entity.Product) (entity.ID, error)
+	UpdateProduct(e *entity.Product) error
+	DeleteProduct(id entity.ID) error
+}
 
 //Service product usecase.
 type Service struct {
-	repo Repository
+	repo repository.ProductQuery
 }
 //NewService create new service.
-func NewService(r Repository) *Service {
+func NewService(r repository.ProductQuery) *Service {
 	return &Service{
 		repo: r,
 	}

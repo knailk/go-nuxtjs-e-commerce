@@ -15,6 +15,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/knailk/go-shopee/app/delivery/handler"
 
+	"github.com/knailk/go-shopee/app/usecase/auth"
 	"github.com/knailk/go-shopee/app/usecase/category"
 	"github.com/knailk/go-shopee/app/usecase/product"
 	"github.com/knailk/go-shopee/app/usecase/user"
@@ -43,23 +44,30 @@ func main() {
 		}
 	}(db)
 	
-	userRepo := sqlite.NewUserRepo(db)
-	userService := user.NewService(userRepo)
+	dao := sqlite.NewDAO(db)
+	// userRepo := sqlite.NewUserRepo(db)
+	// userService := user.NewService(userRepo)
 
-	productRepo := sqlite.NewProductRepo(db)
-	productService := product.NewService(productRepo)
+	// productRepo := sqlite.NewProductRepo(db)
+	// productService := product.NewService(productRepo)
 
-	categoryRepo := sqlite.NewCategoryRepo(db)
-	categoryService := category.NewService(categoryRepo)
+	// categoryRepo := sqlite.NewCategoryRepo(db)
+	// categoryService := category.NewService(categoryRepo)
+	userService := user.NewService(dao.NewUserRepo())
+	productService := product.NewService(dao.NewProductRepo())
+	categoryService := category.NewService(dao.NewCategoryRepo())
+	authService := auth.NewService(dao.NewAuthRepo())
+
 	
 	if err != nil {
 		log.Panic(err.Error())
 	}
 	r := mux.NewRouter()
 	
-	//handler user
+	//handler
 	handler.MakeUserHandlers(r,*userService)
 	handler.MakeProductHandlers(r, *productService, *categoryService)
+	handler.MakeAuthHandlers(r,*authService)
 	
 	http.Handle("/", r)
 	http.Handle("/metrics", promhttp.Handler())

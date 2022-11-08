@@ -5,18 +5,10 @@ import (
 	"time"
 
 	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase/product"
 )
 
 type ProductRepo struct {
 	db *sql.DB
-}
-
-// NewProductRepo create an implementation of product repository.
-func NewProductRepo(db *sql.DB) product.Repository {
-	return &ProductRepo{
-		db: db,
-	}
 }
 
 // Get product by id.

@@ -4,18 +4,10 @@ import (
 	"database/sql"
 
 	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase/category"
 )
 
 type CategoryRepo struct {
 	db *sql.DB
-}
-
-// NewProductRepo create an implementation of product repository.
-func NewCategoryRepo(db *sql.DB) category.Repository {
-	return &CategoryRepo{
-		db: db,
-	}
 }
 
 func (r *CategoryRepo) Get(id int64) (*entity.Category, error){
