@@ -29,7 +29,7 @@ func GenerateJWT(email string, role entity.Role) (string, error) {
 }
 
 func AdminIndex(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Role") != "admin" {
+	if r.Header.Get("Role") != "Admin" {
 		w.Write([]byte("Not authorized."))
 		return
 	}
@@ -44,10 +44,10 @@ func CustomerIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Welcome, Customer."))
 }
 
-func SellerIndex(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Role") != "Seller" {
-		w.Write([]byte("Not Authorized."))
-		return
-	}
-	w.Write([]byte("Welcome, Seller."))
-}
+// func SellerIndex(w http.ResponseWriter, r *http.Request) {
+// 	if r.Header.Get("Role") != "Seller" {
+// 		w.Write([]byte("Not Authorized."))
+// 		return
+// 	}
+// 	w.Write([]byte("Welcome, Seller."))
+// }

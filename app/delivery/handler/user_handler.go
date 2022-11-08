@@ -70,7 +70,7 @@ func createUser(service user.Service) http.Handler {
 			Name     string      `json:"name" validate:"required,min=2,max=50"`
 			Gender   string      `json:"gender" validate:"omitempty,oneof=Male Female"`
 			Phone    string      `json:"phone" validate:"omitempty,min=9,max=11"`
-			Role     entity.Role `json:"role" validate:"omitempty,oneof=Admin Customer Seller"`
+			Role     entity.Role `json:"role" validate:"omitempty,oneof=Admin Customer"`
 		}
 		validate := validator.New()
 		_ = validate.RegisterValidation("passwd", func(fl validator.FieldLevel) bool {
@@ -306,10 +306,11 @@ func isAuthorized(handler http.HandlerFunc) http.Handler {
 			} else if claims["role"] == "Customer" {
 				r.Header.Set("Role", "Customer")
 				return
-			} else if claims["role"] == "Seller" {
-				r.Header.Set("Role", "Seller")
-				return
 			}
+			// } else if claims["role"] == "Seller" {
+			// 	r.Header.Set("Role", "Seller")
+			// 	return
+			// }
 		}
 	})
 }
@@ -320,36 +321,19 @@ func logError(err error, errorMessage string, w http.ResponseWriter) {
 	w.Write([]byte(errorMessage))
 }
 
-// func MakeUserHandlers(r *mux.Router, n negroni.Negroni, service user.Service) {
-// 	r.Handle("/user", n.With(
-// 		negroni.Wrap(listUsers(service)),
-// 	)).Methods("GET", "OPTIONS").Name("listUsers")
-
-// 	r.Handle("/user", n.With(
-// 		negroni.Wrap(createUser(service)),
-// 	)).Methods("POST", "OPTIONS").Name("createUser")
-
-// 	r.Handle("/user/{id}", n.With(
-// 		negroni.Wrap(getUser(service)),
-// 	)).Methods("GET", "OPTIONS").Name("getUser")
-
-// 	r.Handle("/user/{id}", n.With(
-// 		negroni.Wrap(deleteUser(service)),
-// 	)).Methods("DELETE", "OPTIONS").Name("deleteUser")
-// }
 
 func MakeUserHandlers(r *mux.Router, service user.Service) {
-	r.Handle("/user", listUsers(service)).Methods(http.MethodGet)
+	r.Handle("/admin/user", listUsers(service)).Methods(http.MethodGet)
 
-	r.Handle("/user", createUser(service)).Methods(http.MethodPost)
+	r.Handle("/admin/user", createUser(service)).Methods(http.MethodPost)
 
-	r.Handle("/user/{id}", getUser(service)).Methods(http.MethodGet)
+	r.Handle("/admin/user/{id}", getUser(service)).Methods(http.MethodGet)
 
-	r.Handle("/user/{id}", deleteUser(service)).Methods(http.MethodDelete)
+	r.Handle("/admin/user/{id}", deleteUser(service)).Methods(http.MethodDelete)
 
-	r.Handle("/user", updateUser(service)).Methods(http.MethodPut)
-
-	r.Handle("/login", signIn(service)).Methods(http.MethodPost)
+	r.Handle("/admin/user", updateUser(service)).Methods(http.MethodPut)
 
 	r.Handle("/admin", isAuthorized(middleware.AdminIndex)).Methods(http.MethodGet)
+
+	r.Handle("/login", signIn(service)).Methods(http.MethodPost)
 }
