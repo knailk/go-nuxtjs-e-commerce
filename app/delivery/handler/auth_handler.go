@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//signIn login user
 func signIn(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "error login"
@@ -31,7 +32,7 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		//get user
-		authUser,err := service.SignIn(input.UserName)
+		authUser, err := service.SignIn(input.UserName)
 		if err != nil {
 			logError(err, errorMessage, w)
 			return
@@ -53,7 +54,6 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 		token.Email = authUser.Email
 		token.Role = authUser.Role
 		token.TokenString = validToken
-
 		if err := json.NewEncoder(w).Encode(token); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(errorMessage))
@@ -61,13 +61,14 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 	})
 }
 
+//signUp register new user
 func signUp(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		errorMessage := "error sign up"
 		var input struct {
-			Email string `json:"email" validate:"required"`
+			Email    string `json:"email" validate:"required"`
 			Password string `json:"password" validate:"required"`
-			Name string `string:"name" validate:"required"`
+			Name     string `string:"name" validate:"required"`
 		}
 		//validate
 		validate := validator.New()
@@ -81,7 +82,7 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		//create user
-		user,err := entity.NewUser(input.Email,input.Password,input.Name,"","","Customer")
+		user, err := entity.NewUser(input.Email, input.Password, input.Name, "", "", "Customer")
 		if err != nil {
 			if err != nil {
 				logError(err, errorMessage, w)

@@ -34,3 +34,10 @@ type UserUsecase interface{
 	UpdateUser(e *entity.User) error
 	DeleteUser(id entity.ID) error
 }
+
+//CartUsecase interface
+type CartUsecase interface{
+	AddProduct(productId entity.ID) error
+	RemoveProduct(productId entity.ID) error
+	UpdateQuantity(productId entity.ID) error
+}
