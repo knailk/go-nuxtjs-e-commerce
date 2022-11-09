@@ -14,7 +14,7 @@ import (
 
 func signIn(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error login"
+		errorMessage := "error login"
 		var input struct {
 			UserName string `json:"userName" validate:"required"`
 			Password string `json:"password" validate:"required"`
@@ -37,10 +37,9 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		if err = bcrypt.CompareHashAndPassword([]byte(authUser.Password), []byte(input.Password)); err != nil {
-			logError(err, "Incorrect password", w)
+			logError(err, "incorrect password", w)
 			return
 		}
-
 		validToken, err := middleware.GenerateJWT(authUser.Email, authUser.Role)
 		if err != nil {
 			logError(err, errorMessage, w)
@@ -64,7 +63,7 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 
 func signUp(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error sign up"
+		errorMessage := "error sign up"
 		var input struct {
 			Email string `json:"email" validate:"required"`
 			Password string `json:"password" validate:"required"`
@@ -94,7 +93,6 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 			logError(err, errorMessage, w)
 			return
 		}
-
 		validToken, err := middleware.GenerateJWT(user.Email, user.Role)
 		if err != nil {
 			logError(err, errorMessage, w)

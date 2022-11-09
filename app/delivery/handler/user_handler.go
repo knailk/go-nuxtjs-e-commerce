@@ -18,7 +18,7 @@ import (
 // listUsers return http handler
 func listUsers(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error reading users"
+		errorMessage := "error reading users"
 		var data []*entity.User
 		var err error
 		query := r.URL.Query().Get("query")
@@ -61,7 +61,7 @@ func listUsers(service usecase.UserUsecase) http.Handler {
 // createUser create new user
 func createUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error adding user"
+		errorMessage := "error adding user"
 		var input struct {
 			Email    string      `json:"email" validate:"required,email"`
 			Password string      `json:"password" validate:"omitempty,min=8,passwd"`
@@ -114,7 +114,7 @@ func createUser(service usecase.UserUsecase) http.Handler {
 // getUser get user by id
 func getUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error get user by id"
+		errorMessage := "error get user by id"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
@@ -154,7 +154,7 @@ func getUser(service usecase.UserUsecase) http.Handler {
 // deleteUser delete a user
 func deleteUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error delete user"
+		errorMessage := "error delete user"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
@@ -169,7 +169,7 @@ func deleteUser(service usecase.UserUsecase) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		if err := json.NewEncoder(w).Encode("Delete user successful"); err != nil {
+		if err := json.NewEncoder(w).Encode("delete user successful"); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 		}
@@ -178,7 +178,7 @@ func deleteUser(service usecase.UserUsecase) http.Handler {
 
 func updateUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error update user"
+		errorMessage := "error update user"
 		var input struct {
 			UserID   string `json:"id"`
 			Email    string `json:"email" validate:"required,email"`
@@ -226,7 +226,7 @@ func updateUser(service usecase.UserUsecase) http.Handler {
 			w.Write([]byte(errorMessage))
 			return
 		}
-		if err := json.NewEncoder(w).Encode("Update user successful"); err != nil {
+		if err := json.NewEncoder(w).Encode("update user successful"); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 		}
@@ -237,18 +237,18 @@ func isAuthorized(handler http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//get token
 		if r.Header["Token"] == nil {
-			logError(nil, "No token found", w)
+			logError(nil, "no token found", w)
 			return
 		}
 		var mySigningKey = []byte(config.SECRET_KEY)
 		token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				logError(nil, "There was an error in parsing", w)
+				logError(nil, "there was an error in parsing", w)
 			}
 			return mySigningKey, nil
 		})
 		if err != nil {
-			logError(err, "Your Token has been expired", w)
+			logError(err, "your Token has been expired", w)
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {

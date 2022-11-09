@@ -16,7 +16,7 @@ import (
 // listCategories return http handler
 func listCategories(categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error reading categories"
+		errorMessage := "error reading categories"
 		data, err := categoryService.ListCategories()
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
@@ -39,7 +39,7 @@ func listCategories(categoryService usecase.CategoryUsecase) http.Handler {
 // getProducts get list product by category id
 func getProducts(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error get products by category id"
+		errorMessage := "error get products by category id"
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["cate_id"])
 		if err != nil {
@@ -90,7 +90,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 
 func getProduct(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error get product by id"
+		errorMessage := "error get product by id"
 		vars := mux.Vars(r)
 		//get category data
 		categoryId, err := strconv.Atoi(vars["cate_id"])
@@ -147,7 +147,7 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 // createProduct create new product by admin
 func createProduct(productService usecase.ProductUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "Error adding product"
+		errorMessage := "error adding product"
 		var input struct {
 			Name           string `json:"name" validate:"required,min=2,max=50"`
 			Price          int64  `json:"price" validate:"omitempty"`
