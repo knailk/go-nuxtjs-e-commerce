@@ -22,7 +22,11 @@ func NewUserService(dao repository.DAO) UserUsecase {
 
 
 func (s *UserService) GetUser(id entity.ID) (*entity.User, error){
-	return s.dao.NewUserRepo().Get(id)
+	user, err := s.dao.NewUserRepo().Get(id)
+	if user.UserId == 0{
+		return nil, entity.ErrNotFound
+	}
+	return user, err
 }
 
 func (s *UserService) SearchUsers(query string) ([]*entity.User, error){

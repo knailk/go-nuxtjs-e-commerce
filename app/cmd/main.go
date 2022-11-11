@@ -54,6 +54,7 @@ func main() {
 	productService := usecase.NewProductService(dao)
 	categoryService := usecase.NewCategoryService(dao)
 	authService := usecase.NewAuthService(dao)
+	cartService := usecase.NewCartService(dao)
 
 	
 	if err != nil {
@@ -65,6 +66,7 @@ func main() {
 	handler.MakeUserHandlers(r, userService)
 	handler.MakeProductHandlers(r, productService, categoryService)
 	handler.MakeAuthHandlers(r,authService)
+	handler.MakeCartHandlers(r,cartService)
 	
 	http.Handle("/", r)
 	http.Handle("/metrics", promhttp.Handler())

@@ -29,6 +29,9 @@ func (r *UserRepo) Get(id entity.ID) (*entity.User, error) {
 	if err != nil {
 		return nil, err
 	}
+	if u.UserId == 0 {
+		return nil, entity.ErrNotFound
+	}
 	return &u, nil
 }
 //GetUserByEmail return user entity
@@ -48,6 +51,9 @@ func (r *UserRepo) GetUserByEmail(email string) (*entity.User, error) {
 	}
 	if err != nil {
 		return nil, err
+	}
+	if u.UserId == 0 {
+		return nil, entity.ErrNotFound
 	}
 	return &u, nil
 }
@@ -94,34 +100,34 @@ func (r *UserRepo) List() ([]*entity.User, error) {
 
 
 // Create a User.
-func (r *UserRepo) Create(e *entity.User) (entity.ID, error) {
+func (r *UserRepo) Create(user *entity.User) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
 		insert into user (id, email, password, name, gender, phone, role, createdAt, updatedAt, isDeleted) 
 		values(?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
-		return e.UserId, err
+		return user.UserId, err
 	}
 	defer stmt.Close()
 	_, err = stmt.Exec(
-		e.UserId,
-		e.Email,
-		e.Password,
-		e.Name,
-		e.Gender,
-		e.Phone,
-		e.Role,
-		e.CreatedAt,
-		e.UpdatedAt,
+		user.UserId,
+		user.Email,
+		user.Password,
+		user.Name,
+		user.Gender,
+		user.Phone,
+		user.Role,
+		user.CreatedAt,
+		user.UpdatedAt,
 		false,
 	)
 	if err != nil {
-		return e.UserId, err
+		return user.UserId, err
 	}
-	return e.UserId, nil
+	return user.UserId, nil
 }
 
 // Update a User.
-func (r *UserRepo) Update(e *entity.User) error {
+func (r *UserRepo) Update(user *entity.User) error {
 	stmt, err := r.db.Prepare(`
 		update user set 
 		email = ?, 
@@ -134,18 +140,18 @@ func (r *UserRepo) Update(e *entity.User) error {
 	if err != nil {
 		return err
 	}
-	passw, err := entity.GeneratePassword(e.Password)
+	passw, err := entity.GeneratePassword(user.Password)
 	if err != nil {
 		return err
 	}
 	_, err = stmt.Exec(
-		e.Email,
+		user.Email,
 		passw,
-		e.Name,
-		e.Gender,
-		e.Phone,
+		user.Name,
+		user.Gender,
+		user.Phone,
 		time.Now().Format(time.RFC3339),
-		e.UserId,
+		user.UserId,
 	)
 	if err != nil {
 		return err

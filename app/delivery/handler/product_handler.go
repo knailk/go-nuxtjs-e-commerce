@@ -188,12 +188,12 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 }
 
 func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
-	r.Handle("/", listCategories(categoryService)).Methods(http.MethodGet)
+	r.Handle("/product", listCategories(categoryService)).Methods(http.MethodGet)
 
-	r.Handle("/{cate_id}", getProducts(productService, categoryService)).Methods(http.MethodGet)
+	r.Handle("/product/{cate_id}", getProducts(productService, categoryService)).Methods(http.MethodGet)
 
-	r.Handle("/{cate_id}/{product_id}", getProduct(productService, categoryService)).Methods(http.MethodGet)
+	r.Handle("/product/{cate_id}/{product_id}", getProduct(productService, categoryService)).Methods(http.MethodGet)
 
-	r.Handle("/", createProduct(productService)).Methods(http.MethodPost)
+	r.Handle("/product", createProduct(productService)).Methods(http.MethodPost)
 
 }

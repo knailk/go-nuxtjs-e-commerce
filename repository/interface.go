@@ -8,6 +8,7 @@ type DAO interface {
 	NewCategoryRepo() CategoryQuery
 	NewUserRepo() UserQuery
 	NewProductRepo() ProductQuery
+	NewCartRepo() CartQuery
 }
 //Repository interface
 type UserQuery interface {
@@ -34,6 +35,14 @@ type ProductQuery interface {
 type CategoryQuery interface {
 	Get(id int64) (*entity.Category, error)
 	List() ([]*entity.Category, error)
+}
+
+//CartQuery interface
+type CartQuery interface{
+	GetAll(userId entity.ID) ([]*entity.Cart,error)
+	GetOne(userId entity.ID, productId entity.ID) (*entity.Cart, error)
+	Add(cart *entity.Cart) error 
+	Update(cart *entity.Cart) error
 }
 
 // //AuthQuery interface
