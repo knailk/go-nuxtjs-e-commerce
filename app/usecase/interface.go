@@ -37,8 +37,8 @@ type UserUsecase interface{
 
 //CartUsecase interface
 type CartUsecase interface{
-	GetCart(userId entity.ID) ([]*entity.Cart, error)
+	GetCart(userId entity.ID) ([]entity.ProductCart,int64, error)
 	AddToCart(cart *entity.Cart) error
-	UpdateCart(productId entity.ID) error
-	RemoveProduct(productId entity.ID) error
+	UpdateCart(cart *entity.Cart) error
+	RemoveProduct(userId entity.ID,productId entity.ID) error
 }

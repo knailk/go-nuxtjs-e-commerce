@@ -29,6 +29,9 @@ func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
 	if err != nil {
 		return nil, err
 	}
+	if p.ProductID == 0 {
+		return nil, entity.ErrNotFound
+	}
 	return &p, nil
 }
 

@@ -43,6 +43,7 @@ type CartQuery interface{
 	GetOne(userId entity.ID, productId entity.ID) (*entity.Cart, error)
 	Add(cart *entity.Cart) error 
 	Update(cart *entity.Cart) error
+	Remove(userId entity.ID,productId entity.ID) error
 }
 
 // //AuthQuery interface

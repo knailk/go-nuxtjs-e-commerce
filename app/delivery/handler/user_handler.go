@@ -18,7 +18,7 @@ import (
 // listUsers return http handler
 func listUsers(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "error reading users"
+		//errorMessage := "error reading users"
 		var data []*entity.User
 		var err error
 		query := r.URL.Query().Get("query")
@@ -31,12 +31,12 @@ func listUsers(service usecase.UserUsecase) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte("data not found"))
 			return
 		}
 		var toJ []*presenter.User
@@ -53,7 +53,7 @@ func listUsers(service usecase.UserUsecase) http.Handler {
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 		}
 	})
 }
@@ -61,7 +61,7 @@ func listUsers(service usecase.UserUsecase) http.Handler {
 // createUser create new user
 func createUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "error adding user"
+		//errorMessage := "error adding user"
 		var input struct {
 			Email    string      `json:"email" validate:"required,email"`
 			Password string      `json:"password" validate:"omitempty,min=8,passwd"`
@@ -79,33 +79,33 @@ func createUser(service usecase.UserUsecase) http.Handler {
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		if err := validate.Struct(input); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		e, err := entity.NewUser(input.Email, input.Password, input.Name, input.Gender, input.Phone, input.Role)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		id, err := service.CreateUser(e)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
 		if err := json.NewEncoder(w).Encode(id); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 	})
@@ -114,25 +114,25 @@ func createUser(service usecase.UserUsecase) http.Handler {
 // getUser get user by id
 func getUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "error get user by id"
+		//errorMessage := "error get user by id"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		data, err := service.GetUser(id)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 
 		if data == nil {
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte("data not found"))
 			return
 		}
 		toJ := &presenter.User{
@@ -146,7 +146,7 @@ func getUser(service usecase.UserUsecase) http.Handler {
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 		}
 	})
 }
@@ -154,31 +154,31 @@ func getUser(service usecase.UserUsecase) http.Handler {
 // deleteUser delete a user
 func deleteUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "error delete user"
+		//errorMessage := "error delete user"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		err = service.DeleteUser(id)
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		if err := json.NewEncoder(w).Encode("delete user successful"); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 		}
 	})
 }
 
 func updateUser(service usecase.UserUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		errorMessage := "error update user"
+		//errorMessage := "error update user"
 		var input struct {
 			UserID   string `json:"id"`
 			Email    string `json:"email" validate:"required,email"`
@@ -193,22 +193,16 @@ func updateUser(service usecase.UserUsecase) http.Handler {
 		})
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			logInternalServerError(err,err.Error(),w)
 			return
 		}
 		if err := validate.Struct(input); err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			logInternalServerError(err,err.Error(),w)
 			return
 		}
 		id, err := entity.StringToID(input.UserID)
 		if err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			logInternalServerError(err,err.Error(),w)
 			return
 		}
 		u := entity.User{
@@ -223,12 +217,12 @@ func updateUser(service usecase.UserUsecase) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 			return
 		}
 		if err := json.NewEncoder(w).Encode("update user successful"); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
+			w.Write([]byte(err.Error()))
 		}
 	})
 }
@@ -237,18 +231,18 @@ func isAuthorized(handler http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//get token
 		if r.Header["Token"] == nil {
-			logError(nil, "no token found", w)
+			logInternalServerError(nil, "no token found", w)
 			return
 		}
 		var mySigningKey = []byte(config.SECRET_KEY)
 		token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				logError(nil, "there was an error in parsing", w)
+				logInternalServerError(nil, "there was an error in parsing", w)
 			}
 			return mySigningKey, nil
 		})
 		if err != nil {
-			logError(err, "your Token has been expired", w)
+			logInternalServerError(err, "your Token has been expired", w)
 			return
 		}
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
@@ -267,7 +261,7 @@ func isAuthorized(handler http.HandlerFunc) http.Handler {
 	})
 }
 
-func logError(err error, errorMessage string, w http.ResponseWriter) {
+func logInternalServerError(err error, errorMessage string, w http.ResponseWriter) {
 	log.Println(err.Error())
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Write([]byte(errorMessage))

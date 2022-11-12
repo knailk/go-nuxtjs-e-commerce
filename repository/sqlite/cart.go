@@ -66,12 +66,26 @@ func (r *CartRepo) Add(cart *entity.Cart) error {
 
 //Update will change quantity product of cart
 func (r *CartRepo) Update(cart *entity.Cart) error {
-	stmt, err := r.db.Prepare(`update cart set quantity = ?) where userId = ? and productId = ?`)
+	stmt, err := r.db.Prepare(`update cart set quantity = ? where userId = ? and productId = ?`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 	_,err = stmt.Exec(cart.Quantity,cart.UserId,cart.ProductId)
+	if err != nil {
+		return  err
+	}
+	return nil
+}
+
+//Remove remove a product in cart
+func (r *CartRepo) Remove(userId entity.ID,productId entity.ID) error {
+	stmt, err := r.db.Prepare(`delete from cart where userId = ? and productId = ?`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_,err = stmt.Exec(userId,productId)
 	if err != nil {
 		return  err
 	}
