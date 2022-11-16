@@ -8,27 +8,40 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/knailk/go-shopee/app/delivery/middleware"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
 	"github.com/knailk/go-shopee/app/usecase"
 )
 
 // listCategories return http handler
-func listCategories(categoryService usecase.CategoryUsecase) http.Handler {
+func listCategories(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, err := categoryService.ListCategories()
-		w.Header().Set("Content-Type", "application/json")
+		if err != nil{
+			logInternalServerError(err,err.Error(),w)
+			return
+		}
+		var toJson []*presenter.Category
+		for _,v := range data{
+			d,err := productService.ListProducts(int64(v.CategoryId))
+			if err != nil{
+				logInternalServerError(err,err.Error(),w)
+				return
+			}
+			toJson = append(toJson, &presenter.Category{
+				CategoryId: entity.ID(v.CategoryId),
+				Name: v.CategoryName,
+				NumberProduct: len(d),
+			})
+		}
+		middleware.Cors(w,r)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
 		}
-		if data == nil {
-			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("data not found"))
-			return
-		}
-		if err := json.NewEncoder(w).Encode(data); err != nil {
+		if err := json.NewEncoder(w).Encode(toJson); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 		}
@@ -64,7 +77,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 		var toJson []*presenter.Product
 		for _, d := range data {
 			toJson = append(toJson, &presenter.Product{
-				ProductID:      d.ProductID,
+				ProductId:      d.ProductID,
 				Name:           d.Name,
 				Price:          d.Price,
 				Description:    d.Description,
@@ -122,7 +135,7 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 		}
 
 		toJson := &presenter.Product{
-			ProductID:      p.ProductID,
+			ProductId:      p.ProductID,
 			Name:           p.Name,
 			Price:          p.Price,
 			Description:    p.Description,
@@ -183,7 +196,8 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 }
 
 func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
-	r.Handle("/product", listCategories(categoryService)).Methods(http.MethodGet)
+
+	r.Handle("/product", listCategories(productService, categoryService)).Methods(http.MethodGet)
 
 	r.Handle("/product/{cate_id}", getProducts(productService, categoryService)).Methods(http.MethodGet)
 

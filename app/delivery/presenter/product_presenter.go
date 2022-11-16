@@ -4,7 +4,7 @@ import "github.com/knailk/go-shopee/app/entity"
 
 //Product data present
 type Product struct {
-	ProductID      entity.ID `json:"id"`
+	ProductId      entity.ID `json:"id"`
 	Name           string    `json:"name"`
 	Price          int64     `json:"price"`
 	Description    string    `json:"description"`
@@ -13,4 +13,10 @@ type Product struct {
 	CreatedAt      string    `json:"createdAt"`
 	UpdatedAt      string    `json:"updatedAt"`
 	Category       string    `json:"category"`
+}
+
+type Category struct {
+	CategoryId    entity.ID `json:"id"`
+	Name          string    `json:"name"`
+	NumberProduct int     `json:"numberProduct"`
 }

@@ -13,6 +13,7 @@ import (
 
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
+	"github.com/knailk/go-shopee/app/config"
 	"github.com/knailk/go-shopee/app/delivery/handler"
 	"github.com/knailk/go-shopee/app/usecase"
 
@@ -78,7 +79,7 @@ func main() {
 	srv := &http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
-		Addr:         ":" + strconv.Itoa(8081),
+		Addr:         ":" + strconv.Itoa(config.API_PORT),
 		Handler:      context.ClearHandler(http.DefaultServeMux),
 		ErrorLog:     logger,
 	}

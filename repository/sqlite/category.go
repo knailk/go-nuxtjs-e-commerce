@@ -21,6 +21,7 @@ func (r *CategoryRepo) Get(id int64) (*entity.Category, error){
 		return nil, err
 	}
 	var u entity.Category
+	u.CategoryId = int(id)
 	for rows.Next() {
 		err = rows.Scan(&u.CategoryName)
 	}
