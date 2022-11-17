@@ -10,6 +10,7 @@ type Product struct {
 	Description    string    `json:"description"`
 	QuantitySold   int64     `json:"quantitySold"`
 	AvailableUnits int64     `json:"availableUnits"`
+	Image          string `json:"image"`
 	CreatedAt      string    `json:"createdAt"`
 	UpdatedAt      string    `json:"updatedAt"`
 	Category       string    `json:"category"`

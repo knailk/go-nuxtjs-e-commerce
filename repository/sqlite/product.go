@@ -13,7 +13,7 @@ type ProductRepo struct {
 
 // Get product by id.
 func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId from product where id=? and isDeleted = 0`)
+	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId from product where id=? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits,&p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 	}
 	if err != nil {
 		return nil, err
@@ -35,9 +35,37 @@ func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
 	return &p, nil
 }
 
+// Top return limit top product.
+func (r *ProductRepo) Top() ([]*entity.Product, error) {
+	stmt, err := r.db.Prepare(
+		`Select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId 
+		from product 
+		where isDeleted = 0
+		order by quantitySold DESC
+		LIMIT 8`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	var result []*entity.Product
+	rows, err := stmt.Query()
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var p entity.Product
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits,&p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		result = append(result, &p)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
 // Search list product by query.
 func (r *ProductRepo) Search(query string) ([]*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId from product where name like ? and isDeleted = 0`)
+	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId from product where name like ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +77,7 @@ func (r *ProductRepo) Search(query string) ([]*entity.Product, error) {
 	var result []*entity.Product
 	for rows.Next() {
 		var p entity.Product
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits,&p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +88,7 @@ func (r *ProductRepo) Search(query string) ([]*entity.Product, error) {
 
 // List product by category id.
 func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,createdAt,updatedAt,categoryId from product where categoryID = ? and isDeleted = 0`)
+	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId from product where categoryID = ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +99,7 @@ func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
 	}
 	for rows.Next() {
 		var p entity.Product
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.Image,&p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 		if err != nil{
 			return nil, err
 		}
@@ -83,8 +111,8 @@ func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
 // Create a product.
 func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
-	insert into product(id, name, price, description, quantitySold, availableUnits, createdAt, updatedAt, categoryId, isDeleted) 
-	values (?,?,?,?,?,?,?,?,?,?)`)
+	insert into product(id, name, price, description, quantitySold, availableUnits,image, createdAt, updatedAt, categoryId, isDeleted) 
+	values (?,?,?,?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return e.ProductID, err
 	}
@@ -96,6 +124,7 @@ func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 		e.Description,
 		e.QuantitySold,
 		e.AvailableUnits,
+		e.Image,
 		e.CreatedAt,
 		e.UpdatedAt,
 		e.CategoryID,
@@ -115,6 +144,7 @@ func (r *ProductRepo) Update(e *entity.Product) error {
 	description = ?, 
 	quantitySold = ?,
 	availableUnits =?, 
+	image =?,
 	updatedAt = ? 
 	where id = ? and isDeleted = 0`)
 	if err != nil {
@@ -126,6 +156,7 @@ func (r *ProductRepo) Update(e *entity.Product) error {
 		e.Description, 
 		e.QuantitySold, 
 		e.AvailableUnits, 
+		e.Image,
 		time.Now().Format(time.RFC3339), 
 		e.ProductID,
 	)

@@ -134,8 +134,8 @@
               "</a>"
           );
           if (index < 6) {
-            let div1 = $("<div/>");
-            div1.attr({ class: "col-lg-4 col-md-6 pb-1" });
+            let div1 = $("<div class= \"col-lg-4 col-md-6 pb-1\"/>");
+            //div1.attr({ class: "col-lg-4 col-md-6 pb-1" });
             let div2 = $("<div/>");
             div2.attr({
               class: "cat-item d-flex flex-column border mb-4",
@@ -168,6 +168,42 @@
             // .appendTo(divTag);
             console.log(div1);
           }
+        });
+      },
+    });
+
+    $.ajax({
+      url: "http://localhost:8081/product/top",
+      type: "GET",
+      dataType: "json",
+      success: function (result) {
+        result.forEach(function (product, index) {
+          let div1 = $("<div class= \"col-lg-3 col-md-6 col-sm-12 pb-1\"/>");
+          let div2 = $("<div style=\"height: 100%\" class= \"card product-item border-0 mb-4\"/>");
+          let div3 = $("<div style=\"height: 70%\" class= \"card-header product-img position-relative overflow-hidden bg-transparent border p-0\"/>");
+          let img = $("<img class=\"img-fluid w-100\" src=\"img/" + product.image +"\" alt=\"\">");
+          let div4 = $("<div style=\"height: 20%\" class= \"card-body border-left border-right text-center p-0 pt-4 pb-3\"/>");
+          let h61 = $("<h6 class=\"text-truncate mb-3\">"+product.name+"</h6>");
+          let div5 = $("<div class= \"d-flex justify-content-center\"/>");
+          let h62 = $("<h6>$"+product.price+"</h6>");
+          let h63 = $("<h6 class=\"text-muted ml-2\"><del>$"+product.price+"</del></h6>");
+          let div6 = $("<div style=\"height: 10%\" class= \"card-footer d-flex justify-content-between bg-light border\"/>");
+          let a1 = $("<a href=\"\" class=\"btn btn-sm text-dark p-0\"><i class=\"fas fa-eye text-primary mr-1\"></i>View Detail</a>");
+          let a2 = $("<a href=\"\" class=\"btn btn-sm text-dark p-0\"><i class=\"fas fa-shopping-cart text-primary mr-1\"></i>Add To Cart</a>");
+
+          $(img).appendTo(div3);
+          $(h62).appendTo(div5);
+          $(h63).appendTo(div5);
+          $(h61).appendTo(div4);
+          $(div5).appendTo(div4);
+          $(a1).appendTo(div6);
+          $(a2).appendTo(div6);
+          $(div3).appendTo(div2);
+          $(div4).appendTo(div2);
+          $(div6).appendTo(div2);
+          $(div2).appendTo(div1);
+          $(div1).appendTo("#top-product");
+          console.log(result)
         });
       },
     });

@@ -18,24 +18,24 @@ import (
 func listCategories(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		data, err := categoryService.ListCategories()
-		if err != nil{
-			logInternalServerError(err,err.Error(),w)
+		if err != nil {
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		var toJson []*presenter.Category
-		for _,v := range data{
-			d,err := productService.ListProducts(int64(v.CategoryId))
-			if err != nil{
-				logInternalServerError(err,err.Error(),w)
+		for _, v := range data {
+			d, err := productService.ListProducts(int64(v.CategoryId))
+			if err != nil {
+				logInternalServerError(err, err.Error(), w)
 				return
 			}
 			toJson = append(toJson, &presenter.Category{
-				CategoryId: entity.ID(v.CategoryId),
-				Name: v.CategoryName,
+				CategoryId:    entity.ID(v.CategoryId),
+				Name:          v.CategoryName,
 				NumberProduct: len(d),
 			})
 		}
-		middleware.Cors(w,r)
+		middleware.Cors(w, r)
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -48,10 +48,40 @@ func listCategories(productService usecase.ProductUsecase, categoryService useca
 	})
 }
 
+func topProducts(productService usecase.ProductUsecase) http.Handler{
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		data,err := productService.TopProduct()
+		if err != nil && err != entity.ErrNotFound {
+			logInternalServerError(err,err.Error(),w)
+			return
+		}
+		middleware.Cors(w, r)
+		var toJson []*presenter.Product
+		for _, d := range data {
+			toJson = append(toJson, &presenter.Product{
+				ProductId:      d.ProductID,
+				Name:           d.Name,
+				Price:          d.Price,
+				Description:    d.Description,
+				QuantitySold:   d.QuantitySold,
+				AvailableUnits: d.AvailableUnits,
+				Image:          d.Image,
+				CreatedAt:      d.CreatedAt,
+				UpdatedAt:      d.UpdatedAt,
+			})
+		}
+		if err := json.NewEncoder(w).Encode(toJson); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
+	})
+}
+
 // getProducts get list product by category id
 func getProducts(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error get products by category id"
+		middleware.Cors(w, r)
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["cate_id"])
 		if err != nil {
@@ -69,9 +99,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 
 		w.Header().Set("Content-type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
+			logInternalServerError(err,err.Error(),w)
 			return
 		}
 		var toJson []*presenter.Product
@@ -83,6 +111,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 				Description:    d.Description,
 				QuantitySold:   d.QuantitySold,
 				AvailableUnits: d.AvailableUnits,
+				Image:          d.Image,
 				CreatedAt:      d.CreatedAt,
 				UpdatedAt:      d.UpdatedAt,
 				Category:       category.CategoryName,
@@ -99,6 +128,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 func getProduct(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error get product by id"
+		middleware.Cors(w, r)
 		vars := mux.Vars(r)
 		//get category data
 		categoryId, err := strconv.Atoi(vars["cate_id"])
@@ -141,6 +171,7 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 			Description:    p.Description,
 			QuantitySold:   p.QuantitySold,
 			AvailableUnits: p.AvailableUnits,
+			Image: p.Image,
 			CreatedAt:      p.CreatedAt,
 			UpdatedAt:      p.UpdatedAt,
 			Category:       category.CategoryName,
@@ -156,12 +187,14 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 func createProduct(productService usecase.ProductUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error adding product"
+		middleware.Cors(w, r)
 		var input struct {
 			Name           string `json:"name" validate:"required,min=2,max=50"`
 			Price          int64  `json:"price" validate:"omitempty"`
 			Description    string `json:"description" validate:"omitempty"`
 			QuantitySold   int64  `json:"quantitySold"`
 			AvailableUnits int64  `json:"availableUnits"`
+			Image          string `json:"image"`
 			Category       int64  `json:"categoryId"`
 		}
 		validate := validator.New()
@@ -178,7 +211,7 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		p := entity.NewProduct(input.Name, input.Price, input.Description, input.QuantitySold, input.AvailableUnits, input.Category)
+		p := entity.NewProduct(input.Name, input.Price, input.Description, input.QuantitySold, input.AvailableUnits, input.Image, input.Category)
 		id, err := productService.CreateProduct(p)
 		if err != nil {
 			log.Println(err.Error())
@@ -195,9 +228,12 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 	})
 }
 
+
 func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
 
 	r.Handle("/product", listCategories(productService, categoryService)).Methods(http.MethodGet)
+
+	r.Handle("/product/top", topProducts(productService)).Methods(http.MethodGet)
 
 	r.Handle("/product/{cate_id}", getProducts(productService, categoryService)).Methods(http.MethodGet)
 

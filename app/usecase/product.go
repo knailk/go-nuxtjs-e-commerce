@@ -22,6 +22,9 @@ func NewProductService(dao repository.DAO) ProductUsecase {
 func (s *ProductService) GetProduct(id entity.ID) (*entity.Product, error){
 	return s.dao.NewProductRepo().Get(id)
 }
+func (s *ProductService) TopProduct() ([]*entity.Product, error){
+	return s.dao.NewProductRepo().Top()
+}
 func (s *ProductService) SearchProducts(query string) ([]*entity.Product, error){
 	return s.dao.NewProductRepo().Search(strings.ToLower(query))
 }

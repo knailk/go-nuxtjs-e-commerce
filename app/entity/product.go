@@ -12,14 +12,15 @@ type Product struct {
 	Description    string `json:"description"`
 	QuantitySold   int64  `json:"quantitySold"`
 	AvailableUnits int64  `json:"availableUnits"`
+	Image          string `json:"image"`
 	CreatedAt      string `json:"createdAt"`
 	UpdatedAt      string `json:"updatedAt"`
-	CategoryID     int64    `json:"categoryId"`
+	CategoryID     int64  `json:"categoryId"`
 	IsDeleted      bool   `json:"isDeleted"`
 }
 
 //NewProduct create a new product with new ID
-func NewProduct(name string, price int64, description string, quantitySold int64, availableInits int64, category int64) *Product {
+func NewProduct(name string, price int64, description string, quantitySold int64, availableInits int64,image string, category int64) *Product {
 	return &Product{
 		ProductID:      NewID(),
 		Name:           name,
@@ -27,10 +28,11 @@ func NewProduct(name string, price int64, description string, quantitySold int64
 		Description:    description,
 		QuantitySold:   quantitySold,
 		AvailableUnits: availableInits,
+		Image: image,
 		CreatedAt:      time.Now().Format(time.RFC3339),
 		UpdatedAt:      time.Now().Format(time.RFC3339),
 		CategoryID:     category,
 		IsDeleted:      false,
 	}
-	
+
 }
