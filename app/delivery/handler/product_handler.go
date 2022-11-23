@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -96,7 +97,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 			return
 		}
 		data, err := productService.ListProducts(int64(id))
-
+		fmt.Println(data)
 		w.Header().Set("Content-type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			logInternalServerError(err,err.Error(),w)
@@ -114,10 +115,16 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 				Image:          d.Image,
 				CreatedAt:      d.CreatedAt,
 				UpdatedAt:      d.UpdatedAt,
-				Category:       category.CategoryName,
+			
 			})
 		}
-		if err := json.NewEncoder(w).Encode(toJson); err != nil {
+		var outPut struct {
+			Products []*presenter.Product `json:"products"`
+			Category string `json:"category"`
+		}
+		outPut.Products= toJson
+		outPut.Category = category.CategoryName
+		if err := json.NewEncoder(w).Encode(outPut); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 		}
