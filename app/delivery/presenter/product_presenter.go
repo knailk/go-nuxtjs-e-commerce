@@ -13,7 +13,7 @@ type Product struct {
 	Image          string `json:"image"`
 	CreatedAt      string    `json:"createdAt"`
 	UpdatedAt      string    `json:"updatedAt"`
-	Category       string    `json:"category"`
+	Category       int    `json:"category"`
 }
 
 type Category struct {

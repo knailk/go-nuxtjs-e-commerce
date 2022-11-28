@@ -69,6 +69,7 @@ func topProducts(productService usecase.ProductUsecase) http.Handler{
 				Image:          d.Image,
 				CreatedAt:      d.CreatedAt,
 				UpdatedAt:      d.UpdatedAt,
+				Category: int(d.CategoryID),
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJson); err != nil {
@@ -115,7 +116,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 				Image:          d.Image,
 				CreatedAt:      d.CreatedAt,
 				UpdatedAt:      d.UpdatedAt,
-			
+				Category: 		category.CategoryId,
 			})
 		}
 		var outPut struct {
@@ -181,7 +182,7 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 			Image: p.Image,
 			CreatedAt:      p.CreatedAt,
 			UpdatedAt:      p.UpdatedAt,
-			Category:       category.CategoryName,
+			Category:       category.CategoryId,
 		}
 		if err := json.NewEncoder(w).Encode(toJson); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

@@ -2,7 +2,9 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -12,11 +14,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-//signIn login user
+// signIn login user
 func signIn(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var input struct {
-			UserName string `json:"userName" validate:"required"`
+			Email    string `json:"email" validate:"required"`
 			Password string `json:"password" validate:"required"`
 		}
 		validate := validator.New()
@@ -31,7 +33,7 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		//get user
-		authUser, err := service.SignIn(input.UserName)
+		authUser, err := service.SignIn(input.Email)
 		if err != nil {
 			logInternalServerError(err, err.Error(), w)
 			return
@@ -57,16 +59,22 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
 		}
+		log.Println("err.Error()")
+		expiration := time.Now().Add(365 * 24 * time.Hour)
+		cookie    :=    http.Cookie{Name: "token",Value:token.TokenString,Expires:expiration}
+		http.SetCookie(w, &cookie)
 	})
 }
 
-//signUp register new user
+// signUp register new user
 func signUp(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var input struct {
 			Email    string `json:"email" validate:"required"`
 			Password string `json:"password" validate:"required"`
-			Name     string `string:"name" validate:"required"`
+			FullName string `string:"fullName" validate:"required"`
+			Phone    string `string:"phone" validate:"required"`
+			Gender   string `string:"gender" validate:"required,oneof=Male Female"`
 		}
 		//validate
 		validate := validator.New()
@@ -80,7 +88,7 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		//create user
-		user, err := entity.NewUser(input.Email, input.Password, input.Name, "", "", "Customer")
+		user, err := entity.NewUser(input.Email, input.Password, input.FullName, input.Gender, input.Phone, "Customer")
 		if err != nil {
 			if err != nil {
 				logInternalServerError(err, err.Error(), w)
@@ -110,6 +118,10 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
 		}
+		http.SetCookie(w, &http.Cookie{
+			Name:    "token",
+			Value:   token.TokenString,
+		})
 	})
 }
 
