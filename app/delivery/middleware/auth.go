@@ -1,7 +1,9 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -18,47 +20,43 @@ func GenerateJWT(email string, role entity.Role) (string, error) {
 	claims["authorized"] = true
 	claims["email"] = email
 	claims["role"] = role
-	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	claims["exp"] = time.Now().Add(time.Second * 60).Unix()
 
 	tokenString, err := token.SignedString(mySigningKey)
 
 	return tokenString, err
 }
-func verifyJWT(endpointHandler func(writer http.ResponseWriter, request *http.Request)) http.HandlerFunc {
-	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		if request.Header["Token"] != nil {
-			token, err := jwt.Parse(request.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
-				_, ok := token.Method.(*jwt.SigningMethodECDSA)
+func ValidateJWT(next func(w http.ResponseWriter, r *http.Request)) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header["Authorization"] != nil {
+			fmt.Println(r.Header["Authorization"])
+
+			keyFunc := func(t *jwt.Token) (interface{}, error) {
+				_, ok := t.Method.(*jwt.SigningMethodHMAC)
 				if !ok {
-					writer.WriteHeader(http.StatusUnauthorized)
-					_, err := writer.Write([]byte("You're Unauthorized!"))
-					if err != nil {
-						return nil, err
-
-					}
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte("not authorized user"))
 				}
-				return "", nil
-
-			})
-			if err != nil {
-				writer.WriteHeader(http.StatusUnauthorized)
-				_, err2 := writer.Write([]byte("You're Unauthorized due to error parsing the JWT"))
-				if err2 != nil {
-					return
-				}
+				return []byte(config.SECRET_KEY), nil
 			}
+			token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], "Bearer ")[1],keyFunc)
+
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("not authorized: " + err.Error()))
+			}
+
 			if token.Valid {
-				endpointHandler(writer, request)
-				  } else {
-						  writer.WriteHeader(http.StatusUnauthorized)
-						  _, err := writer.Write([]byte("You're Unauthorized due to invalid token"))
-						  if err != nil {
-								  return
-						  }
-}
+				next(w, r)
+			}
+		} else {
+			fmt.Println("2222222")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("not authorized"))
 		}
 	})
 }
+
 func AdminIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Role") != "Admin" {
 		w.Write([]byte("Not authorized."))

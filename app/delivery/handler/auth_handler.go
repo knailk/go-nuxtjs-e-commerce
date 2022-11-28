@@ -2,9 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
@@ -55,14 +53,11 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 		token.Email = authUser.Email
 		token.Role = authUser.Role
 		token.TokenString = validToken
+		
 		if err := json.NewEncoder(w).Encode(token); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
 		}
-		log.Println("err.Error()")
-		expiration := time.Now().Add(365 * 24 * time.Hour)
-		cookie    :=    http.Cookie{Name: "token",Value:token.TokenString,Expires:expiration}
-		http.SetCookie(w, &cookie)
 	})
 }
 
@@ -118,10 +113,6 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
 		}
-		http.SetCookie(w, &http.Cookie{
-			Name:    "token",
-			Value:   token.TokenString,
-		})
 	})
 }
 

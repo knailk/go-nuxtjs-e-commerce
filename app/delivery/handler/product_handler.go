@@ -17,7 +17,7 @@ import (
 
 // listCategories return http handler
 func listCategories(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		data, err := categoryService.ListCategories()
 		if err != nil {
 			logInternalServerError(err, err.Error(), w)
@@ -50,7 +50,7 @@ func listCategories(productService usecase.ProductUsecase, categoryService useca
 }
 
 func topProducts(productService usecase.ProductUsecase) http.Handler{
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		data,err := productService.TopProduct()
 		if err != nil && err != entity.ErrNotFound {
 			logInternalServerError(err,err.Error(),w)
@@ -81,7 +81,7 @@ func topProducts(productService usecase.ProductUsecase) http.Handler{
 
 // getProducts get list product by category id
 func getProducts(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error get products by category id"
 		middleware.Cors(w, r)
 		vars := mux.Vars(r)
@@ -134,7 +134,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 }
 
 func getProduct(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error get product by id"
 		middleware.Cors(w, r)
 		vars := mux.Vars(r)
@@ -193,7 +193,7 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 
 // createProduct create new product by admin
 func createProduct(productService usecase.ProductUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error adding product"
 		middleware.Cors(w, r)
 		var input struct {
@@ -248,5 +248,4 @@ func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, c
 	r.Handle("/product/{cate_id}/{product_id}", getProduct(productService, categoryService)).Methods(http.MethodGet)
 
 	r.Handle("/product", createProduct(productService)).Methods(http.MethodPost)
-
 }

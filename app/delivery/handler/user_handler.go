@@ -6,9 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
-	"github.com/knailk/go-shopee/app/config"
 	"github.com/knailk/go-shopee/app/delivery/middleware"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
@@ -17,7 +15,7 @@ import (
 
 // listUsers return http handler
 func listUsers(service usecase.UserUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return  middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error reading users"
 		var data []*entity.User
 		var err error
@@ -60,7 +58,7 @@ func listUsers(service usecase.UserUsecase) http.Handler {
 
 // createUser create new user
 func createUser(service usecase.UserUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error adding user"
 		var input struct {
 			Email    string      `json:"email" validate:"required,email"`
@@ -113,7 +111,7 @@ func createUser(service usecase.UserUsecase) http.Handler {
 
 // getUser get user by id
 func getUser(service usecase.UserUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error get user by id"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
@@ -153,7 +151,7 @@ func getUser(service usecase.UserUsecase) http.Handler {
 
 // deleteUser delete a user
 func deleteUser(service usecase.UserUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error delete user"
 		vars := mux.Vars(r)
 		id, err := entity.StringToID(vars["id"])
@@ -177,7 +175,7 @@ func deleteUser(service usecase.UserUsecase) http.Handler {
 }
 
 func updateUser(service usecase.UserUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error update user"
 		var input struct {
 			UserID   string `json:"id"`
@@ -227,40 +225,6 @@ func updateUser(service usecase.UserUsecase) http.Handler {
 	})
 }
 
-func isAuthorized(handler http.HandlerFunc) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//get token
-		if r.Header["Token"] == nil {
-			logInternalServerError(nil, "no token found", w)
-			return
-		}
-		var mySigningKey = []byte(config.SECRET_KEY)
-		token, err := jwt.Parse(r.Header["Token"][0], func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				logInternalServerError(nil, "there was an error in parsing", w)
-			}
-			return mySigningKey, nil
-		})
-		if err != nil {
-			logInternalServerError(err, "your Token has been expired", w)
-			return
-		}
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			if claims["role"] == "Admin" {
-				r.Header.Set("Role", "Admin")
-				return
-			} else if claims["role"] == "Customer" {
-				r.Header.Set("Role", "Customer")
-				return
-			}
-			// } else if claims["role"] == "Seller" {
-			// 	r.Header.Set("Role", "Seller")
-			// 	return
-			// }
-		}
-	})
-}
-
 func logInternalServerError(err error, errorMessage string, w http.ResponseWriter) {
 	log.Println(err.Error())
 	w.WriteHeader(http.StatusInternalServerError)
@@ -278,5 +242,5 @@ func MakeUserHandlers(r *mux.Router, service usecase.UserUsecase) {
 
 	r.Handle("/admin/user", updateUser(service)).Methods(http.MethodPut)
 
-	r.Handle("/admin", isAuthorized(middleware.AdminIndex)).Methods(http.MethodGet)
+
 }

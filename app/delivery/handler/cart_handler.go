@@ -6,13 +6,14 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/knailk/go-shopee/app/delivery/middleware"
 	"github.com/knailk/go-shopee/app/delivery/presenter"
 	"github.com/knailk/go-shopee/app/entity"
 	"github.com/knailk/go-shopee/app/usecase"
 )
 
 func getCart(service usecase.CartUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		userId, err := entity.StringToID(r.URL.Query().Get("user_id"))
 		if err != nil {
 			logInternalServerError(err, err.Error(), w)
@@ -41,7 +42,7 @@ func getCart(service usecase.CartUsecase) http.Handler {
 }
 
 func addToCart(service usecase.CartUsecase) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		userId, err := entity.StringToID(r.URL.Query().Get("user_id"))
 		if err != nil {
 			logInternalServerError(err, err.Error(), w)
@@ -85,7 +86,7 @@ func addToCart(service usecase.CartUsecase) http.Handler {
 }
 
 func removeItem(service usecase.CartUsecase) http.Handler{
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		userId, err := entity.StringToID(r.URL.Query().Get("user_id"))
 		if err != nil {
 			logInternalServerError(err, err.Error(), w)
