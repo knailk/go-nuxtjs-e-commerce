@@ -13,7 +13,7 @@ type DAO interface {
 //Repository interface
 type UserQuery interface {
 	Get(id entity.ID) (*entity.User, error)
-	GetUserByEmail(email string) (*entity.User, error)
+	GetByEmail(email string) (*entity.User, error)
 	Search(query string) ([]*entity.User, error)
 	List() ([]*entity.User, error)
 	Create(e *entity.User) (entity.ID, error)

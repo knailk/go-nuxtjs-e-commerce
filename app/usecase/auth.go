@@ -21,7 +21,7 @@ func (s *AuthService) SignUp(user *entity.User) error {
 	return err
 }
 func (s *AuthService) SignIn(email string) (*entity.User, error) {
-	return s.dao.NewUserRepo().GetUserByEmail(email)
+	return s.dao.NewUserRepo().GetByEmail(email)
 }
 
 // func (s *AuthService) Logout(userID entity.ID) error {

@@ -29,6 +29,7 @@ type ProductUsecase interface {
 //UseCase interface
 type UserUsecase interface{
 	GetUser(id entity.ID) (*entity.User, error)
+	GetUserByEmail(email string) (*entity.User, error)
 	SearchUsers(query string) ([]*entity.User, error)
 	ListUsers() ([]*entity.User, error)
 	CreateUser(user *entity.User) (entity.ID, error)

@@ -11,12 +11,12 @@
           <div class="col-md-6 col-lg-4">
             <div class="login-wrap p-0">
               <h3 class="mb-4 text-center">Get's started</h3>
-              <form action="#" class="signin-form">
+              <form action="#" class="signin-form" @submit.prevent="userRegister">
                 <div class="form-group">
-                  <input type="text" class="form-control" placeholder="Full name" required>
+                  <input type="text" v-model="form.fullName" class="form-control" placeholder="Full name" required>
                 </div><!-- form-group// -->
                 <div class="form-group">
-                  <input type="email" class="form-control" placeholder="Email address" required>
+                  <input type="email" v-model="form.email" class="form-control" placeholder="Email address" required>
                 </div><!-- form-group// -->
                 <div class="form-group d-md-flex">
                   <select class="form-control" style="max-width: 120px;">
@@ -25,13 +25,15 @@
                     <option style="color: black;" value="2">+198</option>
                     <option style="color: black;" value="3">+512</option>
                   </select>
-                  <input name="" class="form-control" placeholder="Phone number" type="text">
+                  <input name="" v-model="form.phone" class="form-control" placeholder="Phone number" type="text">
                 </div> <!-- form-group// -->
                 <div class="form-group">
-                  <input type="password" id="password-field" class="form-control" placeholder="Password" required>
+                  <input type="password" v-model="form.password" id="password-field" class="form-control"
+                    placeholder="Password" required>
                 </div><!-- form-group// -->
                 <div class="form-group">
-                  <input type="password" id="password-field" class="form-control" placeholder="Repeat Password" required>
+                  <input type="password" id="password-field-repeat" class="form-control" autocomplete="password-field" placeholder="Repeat Password"
+                    required>
                 </div><!-- form-group// -->
                 <div class="form-group">
                   <button type="submit" class="form-control btn btn-primary submit px-3">Sign Up</button>
@@ -79,7 +81,14 @@ export default {
   data() {
     return {
       showPassword: false,
-      password: null
+      password: null,
+      form: {
+        email: "",
+        password: "",
+        fullName: "",
+        phone: "",
+        gender: "Male"
+      },
     };
   },
   computed: {
@@ -88,8 +97,41 @@ export default {
     }
   },
   methods: {
-    toggleShow() {
-      this.showPassword = !this.showPassword;
+    async userRegister() {
+      try {
+        await this.$axios.post("signup", this.form)
+        let response = await this.$auth.loginWith("local", {
+          data: this.form,
+        });
+        console.log(response)
+        console.log(this.user)
+        this.$axios.defaults.headers.common.Authorization = `${this.$auth.getToken(
+          "local"
+        )}`;
+        this.$notify({
+          group: 'foo',
+          type: 'success',
+          title: 'Authorization',
+          text: "Register successful",
+        })
+      } catch (err) {
+        if (err.response.status === 204) {
+          this.status = 'Please fill all fields!'
+        } else if (err.response.status === 404) {
+          this.status = 'Username does not exist!'
+        } else if (err.response.status === 401) {
+          this.status = 'Incorrect password!'
+        }else if (err.response.status === 500) {
+          this.status = 'Login failed!'
+        }
+        this.$notify({
+          group: 'foo',
+          type: 'error',
+          title: 'Error',
+          text: this.status,
+        })
+      }
+      //this.$nuxt.refresh()
     }
   }
 }

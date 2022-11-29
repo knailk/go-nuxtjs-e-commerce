@@ -15,6 +15,7 @@ import (
 // signIn login user
 func signIn(service usecase.AuthUsecase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		middleware.Cors(w, r)
 		var input struct {
 			Email    string `json:"email" validate:"required"`
 			Password string `json:"password" validate:"required"`
@@ -33,11 +34,13 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 		//get user
 		authUser, err := service.SignIn(input.Email)
 		if err != nil {
-			logInternalServerError(err, err.Error(), w)
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
 			return
 		}
 		if err = bcrypt.CompareHashAndPassword([]byte(authUser.Password), []byte(input.Password)); err != nil {
-			logInternalServerError(err, "incorrect password", w)
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("incorrect password"))
 			return
 		}
 		validToken, err := middleware.GenerateJWT(authUser.Email, authUser.Role)
@@ -53,7 +56,7 @@ func signIn(service usecase.AuthUsecase) http.Handler {
 		token.Email = authUser.Email
 		token.Role = authUser.Role
 		token.TokenString = validToken
-		
+
 		if err := json.NewEncoder(w).Encode(token); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
@@ -79,20 +82,23 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		if err := validate.Struct(input); err != nil {
-			logInternalServerError(err, err.Error(), w)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Input invalid"))
 			return
 		}
 		//create user
 		user, err := entity.NewUser(input.Email, input.Password, input.FullName, input.Gender, input.Phone, "Customer")
 		if err != nil {
 			if err != nil {
-				logInternalServerError(err, err.Error(), w)
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("Can't register new user"))
 				return
 			}
 		}
 		err = service.SignUp(user)
 		if err != nil {
-			logInternalServerError(err, err.Error(), w)
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Can't register new user"))
 			return
 		}
 		validToken, err := middleware.GenerateJWT(user.Email, user.Role)

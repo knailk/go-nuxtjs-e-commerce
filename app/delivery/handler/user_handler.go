@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -105,6 +106,40 @@ func createUser(service usecase.UserUsecase) http.Handler {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
+		}
+	})
+}
+
+//currUser get user data who logged in
+func currUser(service usecase.UserUsecase) http.Handler {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+		clams,_ := middleware.ExtractClaims(w,r)
+		strValue := fmt.Sprintf("%v", clams["email"])
+		data, err := service.GetUserByEmail(strValue)
+		w.Header().Set("Content-Type", "application/json")
+		if err != nil && err != entity.ErrNotFound {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+
+		if data == nil {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("data not found"))
+			return
+		}
+		user := &presenter.User{
+			ID:        data.UserId,
+			Email:     data.Email,
+			Name:      data.Name,
+			Phone:     data.Phone,
+			Gender:    data.Gender,
+			CreatedAt: data.CreatedAt,
+			UpdatedAt: data.UpdatedAt,
+		}
+		if err := json.NewEncoder(w).Encode(user); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
 		}
 	})
 }
@@ -233,6 +268,8 @@ func logInternalServerError(err error, errorMessage string, w http.ResponseWrite
 
 func MakeUserHandlers(r *mux.Router, service usecase.UserUsecase) {
 	r.Handle("/admin/user", listUsers(service)).Methods(http.MethodGet)
+
+	r.Handle("/admin/user/me", currUser(service)).Methods(http.MethodGet)
 
 	r.Handle("/admin/user", createUser(service)).Methods(http.MethodPost)
 

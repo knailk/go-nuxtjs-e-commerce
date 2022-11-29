@@ -28,7 +28,13 @@ func (s *UserService) GetUser(id entity.ID) (*entity.User, error){
 	}
 	return user, err
 }
-
+func (s *UserService) GetUserByEmail(email string) (*entity.User, error){
+	user, err := s.dao.NewUserRepo().GetByEmail(email)
+	if user.UserId == 0{
+		return nil, entity.ErrNotFound
+	}
+	return user, err
+}
 func (s *UserService) SearchUsers(query string) ([]*entity.User, error){
 	return s.dao.NewUserRepo().Search(strings.ToLower(query))
 }

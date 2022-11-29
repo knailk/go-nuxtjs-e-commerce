@@ -11,10 +11,12 @@
           <div class="col-md-6 col-lg-4">
             <div class="login-wrap p-0">
               <h3 class="mb-4 text-center">Have an account?</h3>
+              <notifications group="foo" width=400 height=700 />
               <form action="#" class="signin-form" @submit.prevent="userLogin">
                 <div class="form-group">
-                  <input type="email" v-model="form.email" class="form-control"
-                    placeholder="Email address" required>
+                  <input v-validate="'required|email'" type="text" v-model="form.email" class="form-control"
+                    placeholder="Email address" name="email">
+                    <span>{{ errors.first('email') }}</span>
                 </div>
                 <div class="form-group">
                   <input v-if="showPassword" v-model="form.password" type="text" id="password-field"
@@ -66,13 +68,14 @@
 
 <script>
 export default {
+
   data() {
     return {
       showPassword: false,
       password: null,
       form: {
-            email: "",
-            password: "",
+            email: "tiendung@gmail.com",
+            password: "123456789",
       },
     };
   },
@@ -87,28 +90,36 @@ export default {
     },
     async userLogin() {
       try {
-        let  response = await this.$auth.loginWith("local", {
+        let response = await this.$auth.loginWith("local", {
           data: this.form,
         });
         console.log(response)
+        console.log(this.$auth.user)
         this.$axios.defaults.headers.common.Authorization = `${this.$auth.getToken(
           "local"
         )}`;
-        //this.$router.push("/");
+        this.$notify({
+          group: 'foo',
+          type: 'success',
+          title: 'Authorization',
+          text: "Log In successful",
+        })
       } catch (err) {
-        // if (error.response.status === 204) {
-        //   this.status = 'Please fill all fields!'
-        // } else if (error.response.status === 404) {
-        //   this.status = 'Username does not exist!'
-        // } else if (error.response.status === 401) {
-        //   this.status = 'Incorrect password!'
-        // }
-        // Vue.notify({
-        //   group: 'foo',
-        //   type: 'error',
-        //   title: 'Error',
-        //   text: this.status,
-        // })
+        if (err.response.status === 204) {
+          this.status = 'Please fill all fields!'
+        } else if (err.response.status === 404) {
+          this.status = 'Username does not exist!'
+        } else if (err.response.status === 401) {
+          this.status = 'Incorrect password!'
+        }else if (err.response.status === 500) {
+          this.status = 'Login failed!'
+        }
+        this.$notify({
+          group: 'foo',
+          type: 'error',
+          title: 'Error',
+          text: this.status,
+        })
       }
       //this.$nuxt.refresh()
     }

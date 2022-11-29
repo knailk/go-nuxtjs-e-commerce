@@ -16,10 +16,10 @@ import (
 	"github.com/knailk/go-shopee/app/config"
 	"github.com/knailk/go-shopee/app/delivery/handler"
 	"github.com/knailk/go-shopee/app/usecase"
+	"github.com/rs/cors"
 
 	"github.com/knailk/go-shopee/repository/sqlite"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 
@@ -56,24 +56,26 @@ func main() {
 	categoryService := usecase.NewCategoryService(dao)
 	authService := usecase.NewAuthService(dao)
 	cartService := usecase.NewCartService(dao)
-
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete},
+		AllowedHeaders:[]string{"Accept","Authorization","Content-Type"},
+		AllowCredentials: false,
+	})
 	
 	if err != nil {
 		log.Panic(err.Error())
 	}
 	r := mux.NewRouter()
-	
+	h := c.Handler(r)
 	//handler
 	handler.MakeUserHandlers(r, userService)
 	handler.MakeProductHandlers(r, productService, categoryService)
 	handler.MakeAuthHandlers(r,authService)
 	handler.MakeCartHandlers(r,cartService)
 	
-	http.Handle("/", r)
-	http.Handle("/metrics", promhttp.Handler())
-	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
+	http.Handle("/", h)
+	
 
 	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
 	srv := &http.Server{

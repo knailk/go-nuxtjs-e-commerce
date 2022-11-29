@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -29,8 +28,6 @@ func GenerateJWT(email string, role entity.Role) (string, error) {
 func ValidateJWT(next func(w http.ResponseWriter, r *http.Request)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header["Authorization"] != nil {
-			fmt.Println(r.Header["Authorization"])
-
 			keyFunc := func(t *jwt.Token) (interface{}, error) {
 				_, ok := t.Method.(*jwt.SigningMethodHMAC)
 				if !ok {
@@ -39,7 +36,7 @@ func ValidateJWT(next func(w http.ResponseWriter, r *http.Request)) http.Handler
 				}
 				return []byte(config.SECRET_KEY), nil
 			}
-			token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], "Bearer ")[1],keyFunc)
+			token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], "Bearer ")[1], keyFunc)
 
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
@@ -50,13 +47,35 @@ func ValidateJWT(next func(w http.ResponseWriter, r *http.Request)) http.Handler
 				next(w, r)
 			}
 		} else {
-			fmt.Println("2222222")
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("not authorized"))
 		}
 	})
 }
-
+func ExtractClaims(w http.ResponseWriter, r *http.Request) (jwt.MapClaims, bool) {
+	if r.Header["Authorization"] != nil {
+		keyFunc := func(t *jwt.Token) (interface{}, error) {
+			_, ok := t.Method.(*jwt.SigningMethodHMAC)
+			if !ok {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("not authorized user"))
+			}
+			return []byte(config.SECRET_KEY), nil
+		}
+		token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], "Bearer ")[1], keyFunc)
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			return claims, true
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("not authorized: " + err.Error()))
+			return nil, false
+		}
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("not authorized"))
+		return nil, false
+	}
+}
 func AdminIndex(w http.ResponseWriter, r *http.Request) {
 	if r.Header.Get("Role") != "Admin" {
 		w.Write([]byte("Not authorized."))

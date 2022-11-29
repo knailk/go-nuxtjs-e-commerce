@@ -35,7 +35,7 @@ func (r *UserRepo) Get(id entity.ID) (*entity.User, error) {
 	return &u, nil
 }
 //GetUserByEmail return user entity
-func (r *UserRepo) GetUserByEmail(email string) (*entity.User, error) {
+func (r *UserRepo) GetByEmail(email string) (*entity.User, error) {
 	stmt, err := r.db.Prepare(`select id,email,password,name,gender,phone,role,createdAt, updatedAt from user where email = ? and isDeleted = 0`)
 	if err != nil {
 		return nil, err

@@ -74,7 +74,8 @@ export default {
     // { src: "~/plugins/js/main.js", ssr: false },
     // { src: "~/plugins/lib/owlcarousel/owl.carousel.min.js", ssr: false },
     // { src: "~/plugins/lib/easing/easing.min.js", ssr: false },
-    {src:'~/plugins/notification.js', ssr:false}
+    {src:'~/plugins/notification.js', ssr:false},
+
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -95,23 +96,19 @@ export default {
   auth: {
     strategies: {
       local: {
-        scheme: 'refresh',
-        localStorage: {
-          prefix: 'auth.'
+        user: {
+          property: false,
+          autoFetch: true
+        },
+        token: {
+          property: 'token',
+          required: true,
+          type: 'Bearer'
         },
         endpoints: {
-          login: {
-            url: "/signin",
-            method: "post",
-            propertyName: "access_token"
-          },
+          login: { url: "/signin", method: "post" },
           logout: { url: "/logout", method: "post" },
-          user: {
-            url: "/user",
-            method: "get",
-            propertyName: false
-          },
-          Credentials: true
+          user: { url: "/admin/user/me", method: "get"},
         }
       },
       // redirect: {
