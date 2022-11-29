@@ -8,15 +8,15 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
-	"github.com/knailk/go-shopee/app/delivery/middleware"
-	"github.com/knailk/go-shopee/app/delivery/presenter"
-	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/middleware"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/presenter"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/usecase"
 )
 
 // listUsers return http handler
 func listUsers(service usecase.UserUsecase) http.Handler {
-	return  middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error reading users"
 		var data []*entity.User
 		var err error
@@ -110,10 +110,10 @@ func createUser(service usecase.UserUsecase) http.Handler {
 	})
 }
 
-//currUser get user data who logged in
+// currUser get user data who logged in
 func currUser(service usecase.UserUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
-		clams,_ := middleware.ExtractClaims(w,r)
+		clams, _ := middleware.ExtractClaims(w, r)
 		strValue := fmt.Sprintf("%v", clams["email"])
 		data, err := service.GetUserByEmail(strValue)
 		w.Header().Set("Content-Type", "application/json")
@@ -226,16 +226,16 @@ func updateUser(service usecase.UserUsecase) http.Handler {
 		})
 		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
-			logInternalServerError(err,err.Error(),w)
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		if err := validate.Struct(input); err != nil {
-			logInternalServerError(err,err.Error(),w)
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		id, err := entity.StringToID(input.UserID)
 		if err != nil {
-			logInternalServerError(err,err.Error(),w)
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		u := entity.User{
@@ -278,6 +278,5 @@ func MakeUserHandlers(r *mux.Router, service usecase.UserUsecase) {
 	r.Handle("/admin/user/{id}", deleteUser(service)).Methods(http.MethodDelete)
 
 	r.Handle("/admin/user", updateUser(service)).Methods(http.MethodPut)
-
 
 }

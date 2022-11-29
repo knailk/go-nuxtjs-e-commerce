@@ -1,18 +1,18 @@
 package metric
 
 import (
-	"github.com/knailk/go-shopee/app/config"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
 )
 
-//service implements Service interface
+// service implements Service interface
 type service struct {
 	pHistogram           *prometheus.HistogramVec
 	httpRequestHistogram *prometheus.HistogramVec
 }
 
-//NewPrometheusService create a new prometheus service
+// NewPrometheusService create a new prometheus service
 func NewPrometheusService() (*service, error) {
 	cli := prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace: "pushgateway",
@@ -42,14 +42,14 @@ func NewPrometheusService() (*service, error) {
 	return s, nil
 }
 
-//SaveCLI send metrics to server
+// SaveCLI send metrics to server
 func (s *service) SaveCLI(c *CLI) error {
 	gatewayURL := config.PROMETHEUS_PUSHGATEWAY
 	s.pHistogram.WithLabelValues(c.Name).Observe(c.Duration)
 	return push.New(gatewayURL, "cmd_job").Collector(s.pHistogram).Push()
 }
 
-//SaveHTTP send metrics to server
+// SaveHTTP send metrics to server
 func (s *service) SaveHTTP(h *HTTP) {
 	s.httpRequestHistogram.WithLabelValues(h.Handler, h.Method, h.StatusCode).Observe(h.Duration)
 }

@@ -1,6 +1,6 @@
 package presenter
 
-import "github.com/knailk/go-shopee/app/entity"
+import "github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 
 //User data present
 type User struct {

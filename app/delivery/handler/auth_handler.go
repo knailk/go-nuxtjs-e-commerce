@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
-	"github.com/knailk/go-shopee/app/delivery/middleware"
-	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/middleware"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/usecase"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -1,7 +1,6 @@
 package repository
 
-import "github.com/knailk/go-shopee/app/entity"
-
+import "github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 
 type DAO interface {
 	//NewAuthRepo() AuthQuery
@@ -10,6 +9,7 @@ type DAO interface {
 	NewProductRepo() ProductQuery
 	NewCartRepo() CartQuery
 }
+
 //Repository interface
 type UserQuery interface {
 	Get(id entity.ID) (*entity.User, error)
@@ -39,12 +39,12 @@ type CategoryQuery interface {
 }
 
 //CartQuery interface
-type CartQuery interface{
-	GetAll(userId entity.ID) ([]*entity.Cart,error)
+type CartQuery interface {
+	GetAll(userId entity.ID) ([]*entity.Cart, error)
 	GetOne(userId entity.ID, productId entity.ID) (*entity.Cart, error)
-	Add(cart *entity.Cart) error 
+	Add(cart *entity.Cart) error
 	Update(cart *entity.Cart) error
-	Remove(userId entity.ID,productId entity.ID) error
+	Remove(userId entity.ID, productId entity.ID) error
 }
 
 // //AuthQuery interface
@@ -53,6 +53,3 @@ type CartQuery interface{
 // 	SignIn(email string) (*entity.User, error)
 // 	Logout(userID entity.ID) error
 // }
-
-
-

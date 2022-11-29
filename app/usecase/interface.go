@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/knailk/go-shopee/app/entity"
+import "github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 
 // AuthUsecase interface.
 type AuthUsecase interface {
@@ -18,7 +18,7 @@ type CategoryUsecase interface {
 //UseCase interface.
 type ProductUsecase interface {
 	GetProduct(id entity.ID) (*entity.Product, error)
-	TopProduct() ([]*entity.Product,error)
+	TopProduct() ([]*entity.Product, error)
 	SearchProducts(query string) ([]*entity.Product, error)
 	ListProducts(id int64) ([]*entity.Product, error)
 	CreateProduct(e *entity.Product) (entity.ID, error)
@@ -27,7 +27,7 @@ type ProductUsecase interface {
 }
 
 //UseCase interface
-type UserUsecase interface{
+type UserUsecase interface {
 	GetUser(id entity.ID) (*entity.User, error)
 	GetUserByEmail(email string) (*entity.User, error)
 	SearchUsers(query string) ([]*entity.User, error)
@@ -38,9 +38,9 @@ type UserUsecase interface{
 }
 
 //CartUsecase interface
-type CartUsecase interface{
-	GetCart(userId entity.ID) ([]entity.ProductCart,int64, error)
+type CartUsecase interface {
+	GetCart(userId entity.ID) ([]entity.ProductCart, int64, error)
 	AddToCart(cart *entity.Cart) error
 	UpdateCart(cart *entity.Cart) error
-	RemoveProduct(userId entity.ID,productId entity.ID) error
+	RemoveProduct(userId entity.ID, productId entity.ID) error
 }

@@ -3,8 +3,8 @@ package usecase
 import (
 	"errors"
 
-	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/repository"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/repository"
 )
 
 type CartService struct {
@@ -17,7 +17,7 @@ func NewCartService(dao repository.DAO) CartUsecase {
 	}
 }
 
-//GetCart return a cart presentation
+// GetCart return a cart presentation
 func (s *CartService) GetCart(userId entity.ID) ([]entity.ProductCart, int64, error) {
 	//check user
 	_, err := s.dao.NewUserRepo().Get(userId)
@@ -42,7 +42,7 @@ func (s *CartService) GetCart(userId entity.ID) ([]entity.ProductCart, int64, er
 	return cartProduct, totalPrice, nil
 }
 
-//AddToCart add a product to cart
+// AddToCart add a product to cart
 func (s *CartService) AddToCart(cart *entity.Cart) error {
 	_, err := s.dao.NewUserRepo().Get(cart.UserId)
 	if err != nil {
@@ -57,13 +57,13 @@ func (s *CartService) AddToCart(cart *entity.Cart) error {
 		return err
 	}
 	if item.Quantity == 0 {
-		if cart.Quantity > p.AvailableUnits{
+		if cart.Quantity > p.AvailableUnits {
 			return errors.New("not enough product available")
 		}
 		return s.dao.NewCartRepo().Add(cart)
 	} else {
 		item.Quantity += cart.Quantity
-		if item.Quantity > p.AvailableUnits{
+		if item.Quantity > p.AvailableUnits {
 			return errors.New("not enough product available")
 		}
 		return s.dao.NewCartRepo().Update(item)
@@ -74,8 +74,8 @@ func (s *CartService) UpdateCart(cart *entity.Cart) error {
 	return s.dao.NewCartRepo().Update(cart)
 }
 
-//RemoveProduct remove a product in cart
-func (s *CartService) RemoveProduct(userId,productId entity.ID) error {
+// RemoveProduct remove a product in cart
+func (s *CartService) RemoveProduct(userId, productId entity.ID) error {
 	_, err := s.dao.NewUserRepo().Get(userId)
 	if err != nil {
 		return err
@@ -84,6 +84,6 @@ func (s *CartService) RemoveProduct(userId,productId entity.ID) error {
 	if err != nil {
 		return err
 	}
-	s.dao.NewCartRepo().Remove(userId,productId)
+	s.dao.NewCartRepo().Remove(userId, productId)
 	return nil
 }

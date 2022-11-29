@@ -3,9 +3,8 @@ package sqlite
 import (
 	"database/sql"
 
-	"github.com/knailk/go-shopee/repository"
+	"github.com/knailk/go-nuxtjs-e-commerce/repository"
 )
-
 
 type dao struct {
 	db *sql.DB
@@ -38,7 +37,7 @@ func (d *dao) NewUserRepo() repository.UserQuery {
 	}
 }
 
-func (d *dao) NewCartRepo() repository.CartQuery{
+func (d *dao) NewCartRepo() repository.CartQuery {
 	return &CartRepo{
 		db: d.db,
 	}

@@ -5,10 +5,10 @@ import (
 	"strconv"
 
 	"github.com/codegangsta/negroni"
-	"github.com/knailk/go-shopee/app/pkg/metric"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/pkg/metric"
 )
 
-//Metrics to prometheus
+// Metrics to prometheus
 func Metrics(mService metric.Service) negroni.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		appMetric := metric.NewHTTP(r.URL.Path, r.Method)

@@ -3,14 +3,14 @@ package sqlite
 import (
 	"database/sql"
 
-	"github.com/knailk/go-shopee/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 )
 
 type CategoryRepo struct {
 	db *sql.DB
 }
 
-func (r *CategoryRepo) Get(id int64) (*entity.Category, error){
+func (r *CategoryRepo) Get(id int64) (*entity.Category, error) {
 	stmt, err := r.db.Prepare(`select name from category where id = ?`)
 	if err != nil {
 		return nil, err
@@ -30,7 +30,7 @@ func (r *CategoryRepo) Get(id int64) (*entity.Category, error){
 	}
 	return &u, nil
 }
-func (r *CategoryRepo) 	List() ([]*entity.Category, error){
+func (r *CategoryRepo) List() ([]*entity.Category, error) {
 	stmt, err := r.db.Prepare(`select* from category`)
 	if err != nil {
 		return nil, err

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/knailk/go-shopee/app/config"
-	"github.com/knailk/go-shopee/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/config"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 )
 
 // GenerateJWT return a token string

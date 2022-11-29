@@ -1,11 +1,9 @@
 package usecase
 
 import (
-	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/repository"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/repository"
 )
-
-
 
 // Service product usecase.
 type CategoryService struct {

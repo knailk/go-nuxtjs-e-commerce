@@ -6,10 +6,10 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/knailk/go-shopee/app/delivery/middleware"
-	"github.com/knailk/go-shopee/app/delivery/presenter"
-	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/middleware"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/presenter"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/usecase"
 )
 
 func getCart(service usecase.CartUsecase) http.Handler {
@@ -85,25 +85,25 @@ func addToCart(service usecase.CartUsecase) http.Handler {
 	})
 }
 
-func removeItem(service usecase.CartUsecase) http.Handler{
+func removeItem(service usecase.CartUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		userId, err := entity.StringToID(r.URL.Query().Get("user_id"))
 		if err != nil {
 			logInternalServerError(err, err.Error(), w)
 			return
 		}
-		var inputId string 
+		var inputId string
 		err = json.NewDecoder(r.Body).Decode(&inputId)
 		if err != nil {
-			logInternalServerError(err,err.Error(),w)
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		productId, err := entity.StringToID(inputId)
 		if err != nil {
-			logInternalServerError(err,err.Error(),w)
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
-		service.RemoveProduct(userId,productId)
+		service.RemoveProduct(userId, productId)
 
 	})
 }

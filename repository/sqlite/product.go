@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/knailk/go-shopee/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 )
 
 type ProductRepo struct {
@@ -24,7 +24,7 @@ func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
 		return nil, err
 	}
 	for rows.Next() {
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits,&p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 	}
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (r *ProductRepo) Top() ([]*entity.Product, error) {
 	}
 	for rows.Next() {
 		var p entity.Product
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits,&p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 		result = append(result, &p)
 	}
 	if err != nil {
@@ -77,7 +77,7 @@ func (r *ProductRepo) Search(query string) ([]*entity.Product, error) {
 	var result []*entity.Product
 	for rows.Next() {
 		var p entity.Product
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits,&p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
 		if err != nil {
 			return nil, err
 		}
@@ -99,8 +99,8 @@ func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
 	}
 	for rows.Next() {
 		var p entity.Product
-		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.Image,&p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
-		if err != nil{
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		if err != nil {
 			return nil, err
 		}
 		result = append(result, &p)
@@ -151,13 +151,13 @@ func (r *ProductRepo) Update(e *entity.Product) error {
 		return err
 	}
 	_, err = stmt.Exec(
-		e.Name, 
-		e.Price, 
-		e.Description, 
-		e.QuantitySold, 
-		e.AvailableUnits, 
+		e.Name,
+		e.Price,
+		e.Description,
+		e.QuantitySold,
+		e.AvailableUnits,
 		e.Image,
-		time.Now().Format(time.RFC3339), 
+		time.Now().Format(time.RFC3339),
 		e.ProductID,
 	)
 	if err != nil {

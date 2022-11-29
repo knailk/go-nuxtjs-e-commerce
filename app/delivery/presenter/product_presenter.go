@@ -1,6 +1,6 @@
 package presenter
 
-import "github.com/knailk/go-shopee/app/entity"
+import "github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 
 //Product data present
 type Product struct {
@@ -10,14 +10,14 @@ type Product struct {
 	Description    string    `json:"description"`
 	QuantitySold   int64     `json:"quantitySold"`
 	AvailableUnits int64     `json:"availableUnits"`
-	Image          string `json:"image"`
+	Image          string    `json:"image"`
 	CreatedAt      string    `json:"createdAt"`
 	UpdatedAt      string    `json:"updatedAt"`
-	Category       int    `json:"category"`
+	Category       int       `json:"category"`
 }
 
 type Category struct {
 	CategoryId    entity.ID `json:"id"`
 	Name          string    `json:"name"`
-	NumberProduct int     `json:"numberProduct"`
+	NumberProduct int       `json:"numberProduct"`
 }

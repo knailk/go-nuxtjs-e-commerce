@@ -3,7 +3,7 @@ package sqlite
 import (
 	"database/sql"
 
-	"github.com/knailk/go-shopee/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 )
 
 type AuthRepo struct {
@@ -29,7 +29,6 @@ func (r *AuthRepo) SignIn(email string) (*entity.User, error) {
 	}
 	return &u, nil
 }
-
 
 func (r *AuthRepo) Logout(userID entity.ID) error {
 	return nil

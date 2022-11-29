@@ -9,10 +9,10 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
-	"github.com/knailk/go-shopee/app/delivery/middleware"
-	"github.com/knailk/go-shopee/app/delivery/presenter"
-	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/app/usecase"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/middleware"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/presenter"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/usecase"
 )
 
 // listCategories return http handler
@@ -49,11 +49,11 @@ func listCategories(productService usecase.ProductUsecase, categoryService useca
 	})
 }
 
-func topProducts(productService usecase.ProductUsecase) http.Handler{
+func topProducts(productService usecase.ProductUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
-		data,err := productService.TopProduct()
+		data, err := productService.TopProduct()
 		if err != nil && err != entity.ErrNotFound {
-			logInternalServerError(err,err.Error(),w)
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		middleware.Cors(w, r)
@@ -69,7 +69,7 @@ func topProducts(productService usecase.ProductUsecase) http.Handler{
 				Image:          d.Image,
 				CreatedAt:      d.CreatedAt,
 				UpdatedAt:      d.UpdatedAt,
-				Category: int(d.CategoryID),
+				Category:       int(d.CategoryID),
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJson); err != nil {
@@ -101,7 +101,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 		fmt.Println(data)
 		w.Header().Set("Content-type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
-			logInternalServerError(err,err.Error(),w)
+			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		var toJson []*presenter.Product
@@ -116,14 +116,14 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 				Image:          d.Image,
 				CreatedAt:      d.CreatedAt,
 				UpdatedAt:      d.UpdatedAt,
-				Category: 		category.CategoryId,
+				Category:       category.CategoryId,
 			})
 		}
 		var outPut struct {
 			Products []*presenter.Product `json:"products"`
-			Category string `json:"category"`
+			Category string               `json:"category"`
 		}
-		outPut.Products= toJson
+		outPut.Products = toJson
 		outPut.Category = category.CategoryName
 		if err := json.NewEncoder(w).Encode(outPut); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -179,7 +179,7 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 			Description:    p.Description,
 			QuantitySold:   p.QuantitySold,
 			AvailableUnits: p.AvailableUnits,
-			Image: p.Image,
+			Image:          p.Image,
 			CreatedAt:      p.CreatedAt,
 			UpdatedAt:      p.UpdatedAt,
 			Category:       category.CategoryId,
@@ -235,7 +235,6 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 		}
 	})
 }
-
 
 func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
 

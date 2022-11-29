@@ -13,12 +13,12 @@ import (
 
 	"github.com/gorilla/context"
 	"github.com/gorilla/mux"
-	"github.com/knailk/go-shopee/app/config"
-	"github.com/knailk/go-shopee/app/delivery/handler"
-	"github.com/knailk/go-shopee/app/usecase"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/config"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/handler"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/usecase"
 	"github.com/rs/cors"
 
-	"github.com/knailk/go-shopee/repository/sqlite"
+	"github.com/knailk/go-nuxtjs-e-commerce/repository/sqlite"
 	_ "github.com/mattn/go-sqlite3"
 )
 

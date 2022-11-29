@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"github.com/knailk/go-shopee/app/entity"
-	"github.com/knailk/go-shopee/repository"
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+	"github.com/knailk/go-nuxtjs-e-commerce/repository"
 )
 
 // Service product usecase.
@@ -17,7 +17,7 @@ func NewAuthService(dao repository.DAO) AuthUsecase {
 	}
 }
 func (s *AuthService) SignUp(user *entity.User) error {
-	_,err :=s.dao.NewUserRepo().Create(user)
+	_, err := s.dao.NewUserRepo().Create(user)
 	return err
 }
 func (s *AuthService) SignIn(email string) (*entity.User, error) {
