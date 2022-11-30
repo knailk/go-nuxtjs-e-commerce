@@ -41,8 +41,8 @@ func (r *ProductRepo) SearchByQuery(query string) ([]*entity.Product, error) {
 	select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId 
 	from product 
 	where name like ? and isDeleted = 0
-	order by name DESC
-	LIMIT 8`)
+	order by name ASC
+	LIMIT 5`)
 	if err != nil {
 		return nil, err
 	}

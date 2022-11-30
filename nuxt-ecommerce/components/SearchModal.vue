@@ -7,7 +7,7 @@
           <div class="modal-header">
             <div class="input-group">
               <input type="text" class="form-control" placeholder="Search for products" style="border: solid #D19C97"
-                @keyup="searchTimeOut()" v-model="inputQuery" >
+                @keyup="searchTimeOut()" v-model="inputQuery">
               <div class="input-group-append">
                 <span class="input-group-text bg-transparent text-primary">
                   <i class="fa fa-search"></i>
@@ -16,17 +16,23 @@
             </div>
           </div>
           <div class="modal-body">
-            <div class="container-fluid" >
-              <div class="row" v-for="item in listProducsByQuery" :key="item.id">
-                <div class="col-lg-4">Toan an cuc</div>
-                <div class="col-lg-4">{{item.name}}</div>
-                <div class="col-lg-4">{{item.price}}</div>
-              </div>
+            <div class="container-fluid">
+              <NuxtLink to="#" style="display:block" v-for="item in listProducsByQuery" :key="item.id">
+                <div class="row search-item">
+                  <div class="col-4"><img class="w-100" :src="require(`~/assets/img/${item.image}`)" alt=""></div>
+                  <div class="col-4">
+                    <p>{{ item.name }}</p>
+                  </div>
+                  <div class="col-4">
+                    <p>{{ item.price }}$</p>
+                  </div>
+                </div>
+              </NuxtLink>
+
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -36,9 +42,9 @@
 
 <script>
 export default {
-  data(){
+  data() {
     return {
-      inputQuery:"",
+      inputQuery: "",
       listProducsByQuery: ''
     }
   },
@@ -49,13 +55,18 @@ export default {
         this.timer = null;
       }
       this.timer = setTimeout(() => {
-        this.getProductsSearch()
+          this.getProductsSearch()
       }, 800);
     },
     async getProductsSearch() {
       console.log(this.inputQuery)
-      const listProducs = await this.$axios.$get("/product",{ params: { query: this.inputQuery }});
-      this.listProducsByQuery = listProducs
+      if (this.inputQuery != "") {
+        const listProducs = await this.$axios.$get("/product", { params: { query: this.inputQuery } });
+        this.listProducsByQuery = listProducs
+      } else {
+        this.listProducsByQuery = ""
+      }
+
       console.log(this.listProducsByQuery)
       return { listProducs };
     }
@@ -64,5 +75,33 @@ export default {
 </script>
 
 <style scoped>
+.search-item {
+  max-height: 100px;
+  text-align: center;
+}
 
+.search-item img {
+  object-fit: contain;
+  max-height: 100px;
+  height: 100%;
+}
+
+.search-item img:hover {
+  transform: scale(1.2);
+}
+
+.col-4 {
+  margin: auto;
+}
+
+a {
+  color: black;
+  border-bottom: #D19C97 ridge;
+}
+
+a:hover {
+  transform-origin: bottom left;
+  color: #D19C97;
+  text-decoration: none;
+}
 </style>
