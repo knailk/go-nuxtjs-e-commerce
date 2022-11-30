@@ -19,7 +19,19 @@ func GenerateJWT(email string, role entity.Role) (string, error) {
 	claims["authorized"] = true
 	claims["email"] = email
 	claims["role"] = role
-	claims["exp"] = time.Now().Add(time.Second * 60).Unix()
+	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+
+	tokenString, err := token.SignedString(mySigningKey)
+
+	return tokenString, err
+}
+func GenerateJWTExpired() (string, error) {
+	var mySigningKey = []byte(config.SECRET_KEY)
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+
+	claims["authorized"] = true
+	claims["exp"] = time.Now().Unix()
 
 	tokenString, err := token.SignedString(mySigningKey)
 
@@ -37,7 +49,6 @@ func ValidateJWT(next func(w http.ResponseWriter, r *http.Request)) http.Handler
 				return []byte(config.SECRET_KEY), nil
 			}
 			token, err := jwt.Parse(strings.Split(r.Header["Authorization"][0], "Bearer ")[1], keyFunc)
-
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte("not authorized: " + err.Error()))

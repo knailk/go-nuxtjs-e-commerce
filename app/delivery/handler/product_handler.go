@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -98,7 +97,6 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 			return
 		}
 		data, err := productService.ListProducts(int64(id))
-		fmt.Println(data)
 		w.Header().Set("Content-type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			logInternalServerError(err, err.Error(), w)

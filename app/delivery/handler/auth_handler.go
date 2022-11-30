@@ -122,9 +122,31 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 	})
 }
 
+func logout(service usecase.AuthUsecase) http.Handler {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+		validToken, err := middleware.GenerateJWTExpired()
+		if err != nil {
+			logInternalServerError(err, err.Error(), w)
+			return
+		}
+		var token struct {
+			TokenString string      `json:"token"`
+		}
+		token.TokenString = validToken
+
+		if err := json.NewEncoder(w).Encode(token); err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(err.Error()))
+		}
+	})
+}
+
 func MakeAuthHandlers(r *mux.Router, service usecase.AuthUsecase) {
 
 	r.Handle("/signin", signIn(service)).Methods(http.MethodPost)
 
 	r.Handle("/signup", signUp(service)).Methods(http.MethodPost)
+
+	r.Handle("/logout", logout(service)).Methods(http.MethodDelete)
+
 }

@@ -1,11 +1,12 @@
 <template>
   <div>
     <TopBar />
-    <NarBar :cateList="catelist"/>
+    <NarBar :cateList="catelist" :isHome=true />
+    <notifications group="foo" width=400 height=700 />
     <Featured />
-    <Category :cateList="catelist"/>
+    <Category :cateList="catelist" />
     <Offer />
-    <TopProduct :topProduct="topProduct"/>
+    <TopProduct :topProduct="topProduct" />
     <Subscribe />
     <Vendor />
     <Footer />
@@ -16,10 +17,11 @@
 import "@/assets/css/style.css";
 export default {
   async asyncData({ $axios }) {
-    const catelist = await $axios.$get('http://localhost:8081/product')
-    const topProduct = await $axios.$get('http://localhost:8081/product/top')
-    return { catelist, topProduct }
+    const catelist = await $axios.$get("http://localhost:8081/product");
+    const topProduct = await $axios.$get("http://localhost:8081/product/top");
+    return { catelist, topProduct };
   },
-  scrollToTop: true
+  
+  scrollToTop: true,
 }
 </script>

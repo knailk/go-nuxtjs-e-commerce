@@ -138,10 +138,10 @@
         <div class="nav nav-tabs justify-content-center border-secondary mb-4">
           <a class="nav-item nav-link active" data-toggle="tab" href="#tab-pane-1">Description</a>
           <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-2">Information</a>
-          <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3">Reviews (0)</a>
+          <a class="nav-item nav-link" data-toggle="tab" href="#tab-pane-3">Reviews (1)</a>
         </div>
         <div class="tab-content">
-          <div class="tab-pane fade show active" id="tab-pane-1">
+          <div class="tab-pane  show active" id="tab-pane-1">
             <h4 class="mb-3">Product Description</h4>
             <p>Eos no lorem eirmod diam diam, eos elitr et gubergren diam sea. Consetetur vero aliquyam invidunt duo
               dolores et duo sit. Vero diam ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed sed et,
@@ -154,7 +154,7 @@
               sed ipsum lorem elitr et, amet et labore voluptua sit rebum. Ea erat sed et diam takimata sed justo. Magna
               takimata justo et amet magna et.</p>
           </div>
-          <div class="tab-pane fade" id="tab-pane-2">
+          <div class="tab-pane " id="tab-pane-2">
             <h4 class="mb-3">Additional Information</h4>
             <p>Eos no lorem eirmod diam diam, eos elitr et gubergren diam sea. Consetetur vero aliquyam invidunt duo
               dolores et duo sit. Vero diam ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed sed et,
@@ -197,7 +197,7 @@
               </div>
             </div>
           </div>
-          <div class="tab-pane fade" id="tab-pane-3">
+          <div class="tab-pane " id="tab-pane-3">
             <div class="row">
               <div class="col-md-6">
                 <h4 class="mb-4">1 review for "Colorful Stylish Shirt"</h4>

@@ -9,8 +9,8 @@
           <i class="fa fa-angle-down text-dark"></i>
         </a>
         <nav
-          class="collapse show navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0"
-          id="navbar-vertical">
+          class="collapse navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0"
+          id="navbar-vertical" v-bind:class="{ show: isHome }" >
           <div class="navbar-nav w-100 overflow-hidden" style="height: 533px">
             <!-- nuxtlink cate name -->
             <!-- <NuxtLink :to="'/categories/'+ item.name.toLowerCase().replace(/\s/g, '-')" class="nav-item nav-link" v-for="item in catelist" :key="item.id">{{ item.name }}</NuxtLink> -->
@@ -45,12 +45,15 @@
               <NuxtLink to="/contact" class="nav-item nav-link">Contact</NuxtLink>
             </div>
             <div class="navbar-nav ml-auto py-0">
-              <NuxtLink to="/login" class="nav-item nav-link">Login</NuxtLink>
-              <NuxtLink to="/register" class="nav-item nav-link">Register</NuxtLink>
+              <NuxtLink to="/login" class="nav-item nav-link">{{user}}</NuxtLink>
+                <a class="nav-item nav-link" @click="$auth.logout()" >
+                  <i class="fas fa-sign-out-alt text-primary mr-1"></i>
+                    <span class="badge">Log Out</span>
+                  </a>
             </div>
           </div>
         </nav>
-        <div id="navbar-vertical" class="collapse show">
+        <div id="navbar-vertical" class="collapse" v-bind:class="{ show: isHome }" >
           <div id="header-carousel" class="carousel slide"  data-ride="carousel" >
           <div class="carousel-inner">
             <div class="carousel-item active" style="height: 533px;">
@@ -95,7 +98,12 @@
 
 <script>
 export default {
-  props:['cateList'],
+  props:['cateList','isHome'],
+  data(){
+    return {
+      user:this.$auth.user.email.split('@')[0]
+    }
+  },
 }
 </script>
 

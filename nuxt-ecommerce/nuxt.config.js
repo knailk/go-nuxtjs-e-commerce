@@ -107,16 +107,22 @@ export default {
         },
         endpoints: {
           login: { url: "/signin", method: "post" },
-          logout: { url: "/logout", method: "post" },
+          logout: { url: "/logout", method: "delete" },
           user: { url: "/admin/user/me", method: "get"},
-        }
+        },
+        // redirect: {
+        //   login: '/login',
+        //   logout: '/login',
+        //   callback: '/login',
+        //   home: '/'
+        // }
       },
-      // redirect: {
-      //   login: "/login",
-      //   logout: "/login",
-      //   callback: "/login",
-      //   home: "/"
-      // }
+    },
+    redirect: {
+      login: "/login",
+      logout: "/login",
+      callback: "/login",
+      home: "/"
     }
   },
   router: {
