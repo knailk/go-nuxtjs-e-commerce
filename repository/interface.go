@@ -24,6 +24,7 @@ type UserQuery interface {
 //ProductQuery interface.
 type ProductQuery interface {
 	Get(id entity.ID) (*entity.Product, error)
+	SearchByQuery(query string) ([]*entity.Product,error)
 	Top() ([]*entity.Product, error)
 	Search(query string) ([]*entity.Product, error)
 	List(int64) ([]*entity.Product, error)

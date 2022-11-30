@@ -23,7 +23,7 @@
 // import "@/assets/css/style.css" ;
 export default {
   async asyncData({ $axios }) {
-    const catelist = await $axios.$get('http://localhost:8081/product')
+    const catelist = await $axios.$get('http://localhost:8081/categories')
     return { catelist }
   },
     scrollToTop: true

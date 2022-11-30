@@ -18,6 +18,7 @@ type CategoryUsecase interface {
 //UseCase interface.
 type ProductUsecase interface {
 	GetProduct(id entity.ID) (*entity.Product, error)
+	SearchProductsByQuery(query string) ([]*entity.Product, error)
 	TopProduct() ([]*entity.Product, error)
 	SearchProducts(query string) ([]*entity.Product, error)
 	ListProducts(id int64) ([]*entity.Product, error)

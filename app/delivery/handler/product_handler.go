@@ -35,7 +35,7 @@ func listCategories(productService usecase.ProductUsecase, categoryService useca
 				NumberProduct: len(d),
 			})
 		}
-		middleware.Cors(w, r)
+
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -48,6 +48,41 @@ func listCategories(productService usecase.ProductUsecase, categoryService useca
 	})
 }
 
+// searchProdict get product by query
+func searchProduct(productService usecase.ProductUsecase) http.Handler {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+		query := r.URL.Query().Get("query")
+		data, err := productService.SearchProductsByQuery(query)
+		if err != nil && err != entity.ErrNotFound {
+			logInternalServerError(err, err.Error(), w)
+			return
+		}
+		type productSearch struct {
+			ProductId entity.ID `json:"id"`
+			Name      string    `json:"name"`
+			Price     int64     `json:"price"`
+			Image     string    `json:"image"`
+			Category  int       `json:"category"`
+		}
+		var toJson []*productSearch
+		for _, d := range data {
+			toJson = append(toJson, &productSearch{
+				ProductId:      d.ProductID,
+				Name:           d.Name,
+				Price:          d.Price,
+				Image:          d.Image,
+				Category:       int(d.CategoryID),
+			})
+		}
+
+		if err := json.NewEncoder(w).Encode(toJson); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
+	})
+}
+
+// topProducts get top 8 product by quantitySold
 func topProducts(productService usecase.ProductUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		data, err := productService.TopProduct()
@@ -55,7 +90,6 @@ func topProducts(productService usecase.ProductUsecase) http.Handler {
 			logInternalServerError(err, err.Error(), w)
 			return
 		}
-		middleware.Cors(w, r)
 		var toJson []*presenter.Product
 		for _, d := range data {
 			toJson = append(toJson, &presenter.Product{
@@ -82,7 +116,7 @@ func topProducts(productService usecase.ProductUsecase) http.Handler {
 func getProducts(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error get products by category id"
-		middleware.Cors(w, r)
+
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["cate_id"])
 		if err != nil {
@@ -134,7 +168,7 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 func getProduct(productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error get product by id"
-		middleware.Cors(w, r)
+
 		vars := mux.Vars(r)
 		//get category data
 		categoryId, err := strconv.Atoi(vars["cate_id"])
@@ -193,7 +227,7 @@ func getProduct(productService usecase.ProductUsecase, categoryService usecase.C
 func createProduct(productService usecase.ProductUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error adding product"
-		middleware.Cors(w, r)
+
 		var input struct {
 			Name           string `json:"name" validate:"required,min=2,max=50"`
 			Price          int64  `json:"price" validate:"omitempty"`
@@ -236,7 +270,9 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 
 func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
 
-	r.Handle("/product", listCategories(productService, categoryService)).Methods(http.MethodGet)
+	r.Handle("/categories", listCategories(productService, categoryService)).Methods(http.MethodGet)
+
+	r.Handle("/product", searchProduct(productService)).Methods(http.MethodGet)
 
 	r.Handle("/product/top", topProducts(productService)).Methods(http.MethodGet)
 

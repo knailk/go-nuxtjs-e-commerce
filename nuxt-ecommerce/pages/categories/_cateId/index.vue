@@ -26,7 +26,7 @@
 export default {
 
   async asyncData({ $axios, params }) {
-    const catelist = await $axios.$get('http://localhost:8081/product')
+    const catelist = await $axios.$get('http://localhost:8081/categories')
     //const listProducts = await $axios.$get('/product/' + this.$route.params.cateId).data
     const listProducts = await $axios.$get('http://localhost:8081/product/' + params.cateId)
     return { catelist, listProducts }

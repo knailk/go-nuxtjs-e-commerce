@@ -13,7 +13,7 @@ type ProductRepo struct {
 
 // Get product by id.
 func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
-	stmt, err := r.db.Prepare(`Select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId from product where id=? and isDeleted = 0`)
+	stmt, err := r.db.Prepare(`select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId from product where id=? and isDeleted = 0`)
 	if err != nil {
 		return nil, err
 	}
@@ -33,6 +33,34 @@ func (r *ProductRepo) Get(id entity.ID) (*entity.Product, error) {
 		return nil, entity.ErrNotFound
 	}
 	return &p, nil
+}
+
+// SearchByQuery get list product by query
+func (r *ProductRepo) SearchByQuery(query string) ([]*entity.Product, error) {
+	stmt, err := r.db.Prepare(`
+	select id,name,price,description,quantitySold,availableUnits,image,createdAt,updatedAt,categoryId 
+	from product 
+	where name like ? and isDeleted = 0
+	order by name DESC
+	LIMIT 8`)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query("%" + query + "%")
+	if err != nil {
+		return nil, err
+	}
+	var result []*entity.Product
+	for rows.Next() {
+		var p entity.Product
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.Image, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID)
+		result = append(result, &p)
+	}
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
 }
 
 // Top return limit top product.

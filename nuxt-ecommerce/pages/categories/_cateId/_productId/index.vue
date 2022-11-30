@@ -26,7 +26,7 @@
 export default {
   scrollToTop: true,
   async asyncData({ $axios,params }) {
-    const catelist = await $axios.$get('http://localhost:8081/product')
+    const catelist = await $axios.$get('http://localhost:8081/categories')
     const listProducts = await $axios.$get('http://localhost:8081/product/' + params.cateId)
     const productDetail = await $axios.$get('http://localhost:8081/product/' + params.cateId + '/' + params.productId)
     return { catelist, listProducts, productDetail }
