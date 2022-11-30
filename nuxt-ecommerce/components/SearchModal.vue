@@ -7,7 +7,7 @@
           <div class="modal-header">
             <div class="input-group">
               <input type="text" class="form-control" placeholder="Search for products" style="border: solid #D19C97"
-                @keyup="searchTimeOut()">
+                @keyup="searchTimeOut()" v-model="inputQuery" >
               <div class="input-group-append">
                 <span class="input-group-text bg-transparent text-primary">
                   <i class="fa fa-search"></i>
@@ -16,31 +16,11 @@
             </div>
           </div>
           <div class="modal-body">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-              </div>
-              <div class="row">
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-              </div>
-              <div class="row">
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-              </div>
-              <div class="row">
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-              </div>
-              <div class="row">
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
-                <div class="col-lg-4">.col-lg-4</div>
+            <div class="container-fluid" >
+              <div class="row" v-for="item in listProducsByQuery" :key="item.id">
+                <div class="col-lg-4">Toan an cuc</div>
+                <div class="col-lg-4">{{item.name}}</div>
+                <div class="col-lg-4">{{item.price}}</div>
               </div>
             </div>
           </div>
@@ -56,6 +36,12 @@
 
 <script>
 export default {
+  data(){
+    return {
+      inputQuery:"",
+      listProducsByQuery: ''
+    }
+  },
   methods: {
     searchTimeOut() {
       if (this.timer) {
@@ -67,8 +53,11 @@ export default {
       }, 800);
     },
     async getProductsSearch() {
-      const catelist = await this.$axios.$get("http://localhost:8081/product");
-      return { catelist };
+      console.log(this.inputQuery)
+      const listProducs = await this.$axios.$get("/product",{ params: { query: this.inputQuery }});
+      this.listProducsByQuery = listProducs
+      console.log(this.listProducsByQuery)
+      return { listProducs };
     }
   }
 }
