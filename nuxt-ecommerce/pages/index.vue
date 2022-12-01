@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TopBar />
+    <TopBar :numberProductInCart = "numberProductInCart"/>
     <NarBar :cateList="catelist" :isHome=true />
     <notifications group="foo" width=400 height=700 />
     <Featured />
@@ -19,7 +19,11 @@ export default {
   async asyncData({ $axios }) {
     const catelist = await $axios.$get("http://localhost:8081/categories");
     const topProduct = await $axios.$get("http://localhost:8081/product/top");
-    return { catelist, topProduct };
+    const listProductsInCart = await $axios.$get("/cart");
+    let numberProductInCart;
+    if (listProductsInCart.totalPrice == 0) numberProductInCart = 0
+    else numberProductInCart = listProductsInCart.listProductsInCart.length
+    return { catelist, topProduct, listProductsInCart, numberProductInCart };
   },
 
   scrollToTop: true,

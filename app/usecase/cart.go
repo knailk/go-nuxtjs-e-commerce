@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 	"github.com/knailk/go-nuxtjs-e-commerce/repository"
@@ -18,51 +19,51 @@ func NewCartService(dao repository.DAO) CartUsecase {
 }
 
 // GetCart return a cart presentation
-func (s *CartService) GetCart(userId entity.ID) ([]entity.ProductCart, int64, error) {
+func (s *CartService) GetCart(email string) ([]*entity.ProductCart, int64, error) {
 	//check user
-	_, err := s.dao.NewUserRepo().Get(userId)
+	_, err := s.dao.NewCartRepo().GetAll(email)
 	if err != nil {
-		return nil, 0, err
+		return nil,0, err
 	}
-	cart, err := s.dao.NewCartRepo().GetAll(userId)
+	cartProduct, err := s.dao.NewCartRepo().GetAll(email)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	var cartProduct []entity.ProductCart
 	var totalPrice int64 = 0
-	for _, v := range cart {
-		p, err := s.dao.NewProductRepo().Get(v.ProductId)
-		if err != nil {
-			return nil, 0, err
-		}
-		cartProduct = append(cartProduct, entity.ProductCart{Name: p.Name, Price: p.Price, Quantity: v.Quantity})
-		totalPrice += p.Price * v.Quantity
+	for _, v := range cartProduct {
+		totalPrice += v.Price * v.Quantity
 	}
-	return cartProduct, totalPrice, nil
+	return cartProduct,totalPrice, nil
 }
 
 // AddToCart add a product to cart
-func (s *CartService) AddToCart(cart *entity.Cart) error {
-	_, err := s.dao.NewUserRepo().Get(cart.UserId)
+func (s *CartService) AddToCart(productId entity.ID, email string, quantity int64) error {
+	u, err := s.dao.NewUserRepo().GetByEmail(email)
 	if err != nil {
 		return err
 	}
-	p, err := s.dao.NewProductRepo().Get(cart.ProductId)
+	p, err := s.dao.NewProductRepo().Get(productId)
 	if err != nil {
 		return err
 	}
-	item, err := s.dao.NewCartRepo().GetOne(cart.UserId, cart.ProductId)
+	item, err := s.dao.NewCartRepo().GetOne(u.UserId, productId)
 	if err != nil {
 		return err
 	}
+	fmt.Println(item)
 	if item.Quantity == 0 {
-		if cart.Quantity > p.AvailableUnits {
+		if quantity > p.AvailableUnits {
 			return errors.New("not enough product available")
 		}
-		return s.dao.NewCartRepo().Add(cart)
+		newCart := entity.Cart{
+			UserId: u.UserId,
+			ProductId: productId,
+			Quantity: quantity,
+		}
+		return s.dao.NewCartRepo().Add(&newCart)
 	} else {
-		item.Quantity += cart.Quantity
+		item.Quantity += quantity
 		if item.Quantity > p.AvailableUnits {
 			return errors.New("not enough product available")
 		}
@@ -70,13 +71,9 @@ func (s *CartService) AddToCart(cart *entity.Cart) error {
 	}
 }
 
-func (s *CartService) UpdateCart(cart *entity.Cart) error {
-	return s.dao.NewCartRepo().Update(cart)
-}
-
 // RemoveProduct remove a product in cart
-func (s *CartService) RemoveProduct(userId, productId entity.ID) error {
-	_, err := s.dao.NewUserRepo().Get(userId)
+func (s *CartService) RemoveProduct(productId entity.ID, email string, quantity int64) error {
+	u, err := s.dao.NewUserRepo().GetByEmail(email)
 	if err != nil {
 		return err
 	}
@@ -84,6 +81,15 @@ func (s *CartService) RemoveProduct(userId, productId entity.ID) error {
 	if err != nil {
 		return err
 	}
-	s.dao.NewCartRepo().Remove(userId, productId)
+	item, err := s.dao.NewCartRepo().GetOne(u.UserId, productId)
+	if err != nil {
+		return err
+	}
+	if quantity == item.Quantity || item.Quantity == 1 {
+		s.dao.NewCartRepo().Remove(item)
+	} else {
+		item.Quantity--
+		s.dao.NewCartRepo().Decrease(item)
+	}
 	return nil
 }

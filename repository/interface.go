@@ -1,6 +1,8 @@
 package repository
 
-import "github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+import (
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+)
 
 type DAO interface {
 	//NewAuthRepo() AuthQuery
@@ -41,11 +43,12 @@ type CategoryQuery interface {
 
 //CartQuery interface
 type CartQuery interface {
-	GetAll(userId entity.ID) ([]*entity.Cart, error)
+	GetAll(email string) ([]*entity.ProductCart, error)
 	GetOne(userId entity.ID, productId entity.ID) (*entity.Cart, error)
 	Add(cart *entity.Cart) error
 	Update(cart *entity.Cart) error
-	Remove(userId entity.ID, productId entity.ID) error
+	Remove(cart *entity.Cart) error
+	Decrease(cart *entity.Cart) error
 }
 
 // //AuthQuery interface

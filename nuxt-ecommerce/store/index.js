@@ -3,7 +3,7 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 export const state = () => ({
-  showModal: true,
+  abc: 0,
 })
 
 export const mutations = {
@@ -12,7 +12,7 @@ export const mutations = {
   }
 }
  export const getters = {
-  getShowModal(state) {
-    return state.showModal
+  getnumProductInCart(state) {
+    return state.numProductInCart
   },
  }

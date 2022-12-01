@@ -14,14 +14,13 @@
               <notifications group="foo" width=400 height=700 />
               <form action="#" class="signin-form" @submit.prevent="userLogin">
                 <div class="form-group">
-                  <input type="text" v-model="form.email" class="form-control"
-                    placeholder="Email address" name="email">
+                  <input type="text" v-model="form.email" class="form-control" placeholder="Email address" name="email">
                 </div>
                 <div class="form-group">
                   <input v-if="showPassword" v-model="form.password" type="text" id="password-field"
                     class="form-control" placeholder="Password" required>
-                  <input v-else type="password" v-model="form.password" id="password-field"
-                    class="form-control" placeholder="Password" required>
+                  <input v-else type="password" v-model="form.password" id="password-field" class="form-control"
+                    placeholder="Password" required>
                   <span toggle="#password-field" class="fa fa-fw field-icon toggle-password "
                     :class="{ 'fa-eye-slash': showPassword, 'fa-eye': !showPassword }" v-on:click="toggleShow"></span>
                 </div>
@@ -73,8 +72,8 @@ export default {
       showPassword: false,
       password: null,
       form: {
-            email: "tiendung@gmail.com",
-            password: "123456789",
+        email: "guest@guest",
+        password: "ndtd1234",
       },
     };
   },
@@ -91,20 +90,17 @@ export default {
       try {
         let response = await this.$auth.loginWith("local", {
           data: this.form,
-        });
-        console.log(response)
-        console.log(this.$auth.user)
-        
+        })
       } catch (err) {
         console.log(err)
-        var stt =""
+        var stt = ""
         if (err.response.status === 204) {
           stt = 'Please fill all fields!'
         } else if (err.response.status === 404) {
           stt = 'Username does not exist!'
         } else if (err.response.status === 401) {
           stt = 'Incorrect password!'
-        }else if (err.response.status === 500) {
+        } else if (err.response.status === 500) {
           stt = 'Login failed!'
         }
         this.$notify({

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <TopBar></TopBar>
+    <TopBar :numberProductInCart = "numberProductInCart"/>
     <NarBar :cateList="catelist"></NarBar>
     <!-- Page Header Start -->
     <div class="container-fluid bg-secondary mb-5">
@@ -28,8 +28,12 @@ export default {
   async asyncData({ $axios,params }) {
     const catelist = await $axios.$get('http://localhost:8081/categories')
     const listProducts = await $axios.$get('http://localhost:8081/product/' + params.cateId)
-    const productDetail = await $axios.$get('http://localhost:8081/product/' + params.cateId + '/' + params.productId)
-    return { catelist, listProducts, productDetail }
+    const productDetail = await $axios.$get('http://localhost:8081/product/' + params.cateId + '/' + params.productId);
+    const listProductsInCart = await $axios.$get("/cart");
+    let numberProductInCart;
+    if (listProductsInCart.totalPrice == 0) numberProductInCart = 0
+    else numberProductInCart = listProductsInCart.listProductsInCart.length
+    return { catelist, listProducts, productDetail, listProductsInCart, numberProductInCart }
   },
 }
 </script>

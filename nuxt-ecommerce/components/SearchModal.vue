@@ -2,7 +2,7 @@
   <div>
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
       aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-dialog modal-lg" role="document" >
         <div class="modal-content">
           <div class="modal-header">
             <div class="input-group">
@@ -96,7 +96,8 @@ export default {
 
 a {
   color: black;
-  border-bottom: #D19C97 ridge;
+  border-bottom: #D19C97 ridge 1px;
+  border-width: 75%;
 }
 
 a:hover {

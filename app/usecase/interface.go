@@ -1,6 +1,8 @@
 package usecase
 
-import "github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+import (
+	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
+)
 
 // AuthUsecase interface.
 type AuthUsecase interface {
@@ -40,8 +42,7 @@ type UserUsecase interface {
 
 //CartUsecase interface
 type CartUsecase interface {
-	GetCart(userId entity.ID) ([]entity.ProductCart, int64, error)
-	AddToCart(cart *entity.Cart) error
-	UpdateCart(cart *entity.Cart) error
-	RemoveProduct(userId entity.ID, productId entity.ID) error
+	GetCart(email string) ([]*entity.ProductCart, int64, error)
+	AddToCart(productId entity.ID, email string, quantity int64) error
+	RemoveProduct(productId entity.ID, email string, quantity int64) error
 }

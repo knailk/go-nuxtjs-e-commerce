@@ -1,6 +1,7 @@
 <template>
-  <!-- Topbar Start -->
-  <div class="container-fluid">
+  <div>
+    <!-- Topbar Start -->
+  <div id="top-bar" class="container-fluid">
     <div class="row bg-secondary py-2 px-xl-5">
       <div class="col-lg-6 d-none d-lg-block">
         <div class="d-inline-flex align-items-center">
@@ -51,9 +52,6 @@
           </div>
         </form>
       </div>
-      <!-- Modal -->
-      <SearchModal />
-      <!-- Modal end -->
       <div class="col-lg-3 col-6 text-right">
         <a href="" class="btn border">
           <i class="fas fa-heart text-primary"></i>
@@ -61,25 +59,31 @@
         </a>
         <NuxtLink to="/cart" class="btn border">
           <i class="fas fa-shopping-cart text-primary"></i>
-          <span class="badge">0</span>
+          <span class="badge">{{numberProductInCart}}</span>
         </NuxtLink>
       </div>
     </div>
   </div>
   <!-- Topbar End -->
+    <!-- Modal -->
+    <SearchModal />
+      <!-- Modal end -->
+  </div>
+
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
 export default {
-  methods: {
-    ...mapMutations([
-      'changeStateShowModal',
-    ]),
-  }
+  props:['numberProductInCart']
 }
 </script>
 
-<style>
-
+<style scoped>
+#top-bar{
+  position: fixed;
+  top: 0;
+  overflow: hidden;
+  background: rgb(247, 221, 221);
+  z-index: 100;
+}
 </style>

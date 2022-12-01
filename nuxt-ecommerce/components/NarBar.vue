@@ -1,6 +1,6 @@
 <template>
   <!-- Navbar Start -->
-  <div class="container-fluid mb-5">
+  <div class="container-fluid mb-5" style="margin-top:120px">
     <div class="row border-top px-xl-5">
       <div class="col-lg-3 d-none d-lg-block">
         <a class="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100"
@@ -45,7 +45,7 @@
               <NuxtLink to="/contact" class="nav-item nav-link">Contact</NuxtLink>
             </div>
             <div class="navbar-nav ml-auto py-0">
-              <NuxtLink to="/login" class="nav-item nav-link">{{user}}</NuxtLink>
+              <NuxtLink to="/profile" class="nav-item nav-link">{{user}}</NuxtLink>
                 <a class="nav-item nav-link" @click="$auth.logout()" >
                   <i class="fas fa-sign-out-alt text-primary mr-1"></i>
                     <span class="badge">Log Out</span>

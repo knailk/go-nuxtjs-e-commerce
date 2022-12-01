@@ -11,20 +11,25 @@ type CartRepo struct {
 }
 
 // Get get all product in cart
-func (r *CartRepo) GetAll(userId entity.ID) ([]*entity.Cart, error) {
-	stmt, err := r.db.Prepare(`select userId,productId,quantity from cart where userId = ?`)
+func (r *CartRepo) GetAll(email string) ([]*entity.ProductCart, error) {
+	stmt, err := r.db.Prepare(`select userId, productId, product.name, price, image , quantity , availableUnits
+	from user 
+	join cart 
+	on user.email = ? and user.id = cart.userId
+	join product
+	on cart.productId = product.id `)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
-	rows, err := stmt.Query(userId)
+	rows, err := stmt.Query(email)
 	if err != nil {
 		return nil, err
 	}
-	var result []*entity.Cart
+	var result []*entity.ProductCart
 	for rows.Next() {
-		var c entity.Cart
-		rows.Scan(&c.UserId, &c.ProductId, &c.Quantity)
+		var c entity.ProductCart
+		rows.Scan(&c.UserId, &c.ProductId, &c.Name, &c.Price, &c.Image, &c.Quantity, &c.AvailableUnits)
 		result = append(result, &c)
 	}
 	return result, nil
@@ -32,7 +37,7 @@ func (r *CartRepo) GetAll(userId entity.ID) ([]*entity.Cart, error) {
 
 // GetOne get one product in cart
 func (r *CartRepo) GetOne(userId entity.ID, productId entity.ID) (*entity.Cart, error) {
-	stmt, err := r.db.Prepare(`select userId,productId,quantity from cart where userId = ? and productId = ?`)
+	stmt, err := r.db.Prepare(`select * from cart where userId = ? and productId = ?`)
 	if err != nil {
 		return nil, err
 	}
@@ -80,13 +85,27 @@ func (r *CartRepo) Update(cart *entity.Cart) error {
 }
 
 // Remove remove a product in cart
-func (r *CartRepo) Remove(userId entity.ID, productId entity.ID) error {
+func (r *CartRepo) Remove(cart *entity.Cart) error {
 	stmt, err := r.db.Prepare(`delete from cart where userId = ? and productId = ?`)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(userId, productId)
+	_, err = stmt.Exec(cart.UserId, cart.ProductId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//Decrease decrease quantity product in cart 
+func (r* CartRepo) Decrease(cart *entity.Cart) error {
+	stmt, err := r.db.Prepare(`update cart set quantity = ? where userId = ? and productId = ?`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(cart.Quantity, cart.UserId, cart.ProductId)
 	if err != nil {
 		return err
 	}

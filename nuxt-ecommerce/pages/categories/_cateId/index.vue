@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TopBar></TopBar>
+    <TopBar :numberProductInCart = "numberProductInCart"/>
     <NarBar :cateList="catelist"></NarBar>
     <!-- Page Header Start -->
     <div class="container-fluid bg-secondary mb-5">
@@ -24,12 +24,15 @@
 <script>
 // import "@/assets/css/style.css";
 export default {
-
   async asyncData({ $axios, params }) {
-    const catelist = await $axios.$get('http://localhost:8081/categories')
+    const catelist = await $axios.$get('/categories')
     //const listProducts = await $axios.$get('/product/' + this.$route.params.cateId).data
-    const listProducts = await $axios.$get('http://localhost:8081/product/' + params.cateId)
-    return { catelist, listProducts }
+    const listProducts = await $axios.$get('/product/' + params.cateId)
+    const listProductsInCart = await $axios.$get("/cart");
+    let numberProductInCart;
+    if (listProductsInCart.totalPrice == 0) numberProductInCart = 0
+    else numberProductInCart = listProductsInCart.listProductsInCart.length
+    return { catelist, listProducts, listProductsInCart, numberProductInCart }
   },
   methods: {
     toUpper(str) {
@@ -39,7 +42,6 @@ export default {
   mounted(){
   },
   scrollToTop: true
-
 }
 </script>
 

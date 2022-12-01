@@ -116,7 +116,6 @@ func currUser(service usecase.UserUsecase) http.Handler {
 		clams, _ := middleware.ExtractClaims(w, r)
 		strValue := fmt.Sprintf("%v", clams["email"])
 		data, err := service.GetUserByEmail(strValue)
-		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
