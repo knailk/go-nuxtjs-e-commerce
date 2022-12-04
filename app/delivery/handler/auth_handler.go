@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -82,43 +83,44 @@ func signUp(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		if err := validate.Struct(input); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusNoContent)
 			w.Write([]byte("Input invalid"))
 			return
 		}
 		//create user
 		user, err := entity.NewUser(input.Email, input.Password, input.FullName, input.Gender, input.Phone, "Customer")
 		if err != nil {
-			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("Can't register new user"))
-				return
-			}
-		}
-		err = service.SignUp(user)
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusNotAcceptable)
 			w.Write([]byte("Can't register new user"))
 			return
 		}
-		validToken, err := middleware.GenerateJWT(user.Email, user.Role)
+		err = service.SignUp(user)
 		if err != nil {
-			logInternalServerError(err, err.Error(), w)
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusNotAcceptable)
+			w.Write([]byte("Can't register new user"))
 			return
 		}
-		var token struct {
-			Role        entity.Role `json:"role"`
-			Email       string      `json:"email"`
-			TokenString string      `json:"token"`
-		}
-		token.Email = user.Email
-		token.Role = user.Role
-		token.TokenString = validToken
+		// validToken, err := middleware.GenerateJWT(user.Email, user.Role)
+		// if err != nil {
+		// 	logInternalServerError(err, err.Error(), w)
+		// 	return
+		// }
+		// var token struct {
+		// 	Role        entity.Role `json:"role"`
+		// 	Email       string      `json:"email"`
+		// 	TokenString string      `json:"token"`
+		// }
+		// token.Email = user.Email
+		// token.Role = user.Role
+		// token.TokenString = validToken
 
-		if err := json.NewEncoder(w).Encode(token); err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(err.Error()))
-		}
+		// if err := json.NewEncoder(w).Encode(token); err != nil {
+		// 	w.WriteHeader(http.StatusUnauthorized)
+		// 	w.Write([]byte(err.Error()))
+		// }
 	})
 }
 
@@ -130,7 +132,7 @@ func logout(service usecase.AuthUsecase) http.Handler {
 			return
 		}
 		var token struct {
-			TokenString string      `json:"token"`
+			TokenString string `json:"token"`
 		}
 		token.TokenString = validToken
 

@@ -12,6 +12,7 @@ import (
 	"github.com/knailk/go-nuxtjs-e-commerce/app/delivery/presenter"
 	"github.com/knailk/go-nuxtjs-e-commerce/app/entity"
 	"github.com/knailk/go-nuxtjs-e-commerce/app/usecase"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // listUsers return http handler
@@ -186,24 +187,47 @@ func getUser(service usecase.UserUsecase) http.Handler {
 // deleteUser delete a user
 func deleteUser(service usecase.UserUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
-		//errorMessage := "error delete user"
-		vars := mux.Vars(r)
-		id, err := entity.StringToID(vars["id"])
+		var input struct {
+			Id       string `json:"id" validate:"required"`
+			Email    string `json:"email" validate:"required"`
+			Password string `json:"password" validate:"required"`
+		}
+		validate := validator.New()
+		err := json.NewDecoder(r.Body).Decode(&input)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusForbidden)
 			w.Write([]byte(err.Error()))
+			return
+		}
+		//validate
+		if err := validate.Struct(input); err != nil {
+			logInternalServerError(err, err.Error(), w)
+			return
+		}
+		id, err := entity.StringToID(input.Id)
+		if err != nil {
+			logInternalServerError(err, err.Error(), w)
+			return
+		}
+		user, err := service.GetUserByEmail(input.Email)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("incorrect password"))
 			return
 		}
 		err = service.DeleteUser(id)
-		w.Header().Set("Content-Type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
+			log.Println(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 			return
-		}
-		if err := json.NewEncoder(w).Encode("delete user successful"); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(err.Error()))
 		}
 	})
 }
@@ -212,12 +236,11 @@ func updateUser(service usecase.UserUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error update user"
 		var input struct {
-			UserID   string `json:"id"`
-			Email    string `json:"email" validate:"required,email"`
-			Password string `json:"password" validate:"required,min=8,passwd"`
-			Name     string `json:"name" validate:"omitempty,min=2,max=50"`
-			Gender   string `json:"gender" validate:"omitempty,oneof=Male Female"`
-			Phone    string `json:"phone" validate:"required,min=9,max=11"`
+			UserID string `json:"id" validate:"required"`
+			Email  string `json:"email" validate:"required"`
+			Name   string `json:"name" validate:"required,min=2,max=50"`
+			Gender string `json:"gender" validate:"required,oneof=Male Female"`
+			Phone  string `json:"phone" validate:"required,min=9,max=11"`
 		}
 		validate := validator.New()
 		_ = validate.RegisterValidation("passwd", func(fl validator.FieldLevel) bool {
@@ -232,18 +255,18 @@ func updateUser(service usecase.UserUsecase) http.Handler {
 			logInternalServerError(err, err.Error(), w)
 			return
 		}
+		fmt.Println(input)
 		id, err := entity.StringToID(input.UserID)
 		if err != nil {
 			logInternalServerError(err, err.Error(), w)
 			return
 		}
 		u := entity.User{
-			UserId:   id,
-			Email:    input.Email,
-			Password: input.Password,
-			Name:     input.Name,
-			Gender:   input.Gender,
-			Phone:    input.Phone,
+			UserId: id,
+			Email:  input.Email,
+			Name:   input.Name,
+			Gender: input.Gender,
+			Phone:  input.Phone,
 		}
 		err = service.UpdateUser(&u)
 		w.Header().Set("Content-Type", "application/json")
@@ -274,8 +297,7 @@ func MakeUserHandlers(r *mux.Router, service usecase.UserUsecase) {
 
 	r.Handle("/admin/user/{id}", getUser(service)).Methods(http.MethodGet)
 
-	r.Handle("/admin/user/{id}", deleteUser(service)).Methods(http.MethodDelete)
+	r.Handle("/admin/user", deleteUser(service)).Methods(http.MethodDelete)
 
-	r.Handle("/admin/user", updateUser(service)).Methods(http.MethodPut)
-
+	r.Handle("/admin/user/edit", updateUser(service)).Methods(http.MethodPost)
 }

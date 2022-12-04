@@ -130,8 +130,6 @@ func (r *UserRepo) Create(user *entity.User) (entity.ID, error) {
 func (r *UserRepo) Update(user *entity.User) error {
 	stmt, err := r.db.Prepare(`
 		update user set 
-		email = ?, 
-		password = ?, 
 		name = ?, 
 		gender = ?, 
 		phone = ?, 
@@ -140,13 +138,7 @@ func (r *UserRepo) Update(user *entity.User) error {
 	if err != nil {
 		return err
 	}
-	passw, err := entity.GeneratePassword(user.Password)
-	if err != nil {
-		return err
-	}
 	_, err = stmt.Exec(
-		user.Email,
-		passw,
 		user.Name,
 		user.Gender,
 		user.Phone,

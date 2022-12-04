@@ -52,7 +52,7 @@ func (s *UserService) UpdateUser(e *entity.User) error {
 }
 
 func (s *UserService) DeleteUser(id entity.ID) error {
-	u, err := s.GetUser(id)
+	u, err := s.dao.NewUserRepo().Get(id)
 	if u == nil {
 		return entity.ErrNotFound
 	}

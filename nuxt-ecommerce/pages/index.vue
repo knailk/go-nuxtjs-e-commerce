@@ -25,7 +25,6 @@ export default {
     else numberProductInCart = listProductsInCart.listProductsInCart.length
     return { catelist, topProduct, listProductsInCart, numberProductInCart };
   },
-
   scrollToTop: true,
 }
 </script>
