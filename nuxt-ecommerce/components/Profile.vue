@@ -19,7 +19,7 @@
               <div class="card">
                 <div class="card-body">
                   <div class="d-flex flex-column align-items-center text-center">
-                    <img src="https://www.bootdey.com/app/webroot/img/Content/avatar/avatar6.png" class="rounded-circle"
+                    <img src="~/assets/img/user.png" class="rounded-circle"
                       width="150">
                     <div class="mt-3">
                       <h4>{{ this.$auth.user.name }}</h4>

@@ -14,7 +14,7 @@
           </thead>
           <tbody class="align-middle">
             <tr v-for="item in listProductsInCart.listProductsInCart" :key="item.productId">
-              <td class="align-middle"><img :src="require(`~/assets/img/${item.image}`)" alt=""
+              <td class="align-middle text-left"><img :src="require(`~/assets/img/${item.image}`)" alt=""
                   style="width: 50px; height: 50px; text-align: center;"> {{ item.name }}</td>
               <td class="align-middle">${{ item.price }}</td>
               <td class="align-middle">

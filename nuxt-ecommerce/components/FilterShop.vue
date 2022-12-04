@@ -202,6 +202,7 @@ export default {
         ignoreDuplicates: true,
         width: 700,
       })
+      this.$nuxt.refresh()
     }
   }
 }
