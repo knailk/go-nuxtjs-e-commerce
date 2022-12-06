@@ -33,6 +33,9 @@ func (s *ProductService) SearchProducts(query string) ([]*entity.Product, error)
 func (s *ProductService) ListProducts(id int64) ([]*entity.Product, error) {
 	return s.dao.NewProductRepo().List(id)
 }
+func (s *ProductService) AdminGetProducts(id int64) ([]*entity.Product, error){
+	return s.dao.NewProductRepo().ListAll(id)
+}
 func (s *ProductService) CreateProduct(p *entity.Product) (entity.ID, error) {
 	return s.dao.NewProductRepo().Create(p)
 }
@@ -47,5 +50,8 @@ func (s *ProductService) DeleteProduct(id entity.ID) error {
 	if err != nil {
 		return err
 	}
+	return s.dao.NewProductRepo().Delete(id)
+}
+func (s *ProductService) AdminDeleteProduct(id entity.ID) error {
 	return s.dao.NewProductRepo().Delete(id)
 }

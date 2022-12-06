@@ -16,7 +16,7 @@
             </div>
           </div>
           <div class="modal-body">
-            <div class="container-fluid">
+            <div class="container-fluid" style="overflow:scroll;height: 510px;">
               <NuxtLink to="#" style="display:block" v-for="item in listProducsByQuery" :key="item.id">
                 <div class="row search-item">
                   <div class="col-4"><img class="w-100" :src="require(`~/assets/img/${item.image}`)" alt=""></div>
@@ -104,5 +104,8 @@ a:hover {
   transform-origin: bottom left;
   color: #D19C97;
   text-decoration: none;
+}
+.container-fluid::-webkit-scrollbar {
+  display: none;
 }
 </style>

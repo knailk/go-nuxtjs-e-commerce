@@ -67,11 +67,11 @@ func searchProduct(productService usecase.ProductUsecase) http.Handler {
 		var toJson []*productSearch
 		for _, d := range data {
 			toJson = append(toJson, &productSearch{
-				ProductId:      d.ProductID,
-				Name:           d.Name,
-				Price:          d.Price,
-				Image:          d.Image,
-				Category:       int(d.CategoryID),
+				ProductId: d.ProductID,
+				Name:      d.Name,
+				Price:     d.Price,
+				Image:     d.Image,
+				Category:  int(d.CategoryID),
 			})
 		}
 
@@ -131,7 +131,6 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 			return
 		}
 		data, err := productService.ListProducts(int64(id))
-		w.Header().Set("Content-type", "application/json")
 		if err != nil && err != entity.ErrNotFound {
 			logInternalServerError(err, err.Error(), w)
 			return
@@ -162,6 +161,71 @@ func getProducts(productService usecase.ProductUsecase, categoryService usecase.
 			w.Write([]byte(err.Error()))
 		}
 		//data, err:= categoryService.GetCategory(int64(id))
+	})
+}
+
+// adminGetProducts get list product by category id
+func adminGetProducts(productService usecase.ProductUsecase) http.Handler {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+		//errorMessage := "error get products by category id"
+
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["cate_id"])
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		data, err := productService.AdminGetProducts(int64(id))
+		if err != nil && err != entity.ErrNotFound {
+			logInternalServerError(err, err.Error(), w)
+			return
+		}
+		var toJson []*presenter.Product
+		for _, d := range data {
+			toJson = append(toJson, &presenter.Product{
+				ProductId:      d.ProductID,
+				Name:           d.Name,
+				Price:          d.Price,
+				Description:    d.Description,
+				QuantitySold:   d.QuantitySold,
+				AvailableUnits: d.AvailableUnits,
+				Image:          d.Image,
+				CreatedAt:      d.CreatedAt,
+				UpdatedAt:      d.UpdatedAt,
+				Category:       id,
+				IsDeleted:      d.IsDeleted,
+			})
+		}
+		if err := json.NewEncoder(w).Encode(toJson); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		}
+	})
+}
+
+func adminDeleteProduct(productService usecase.ProductUsecase) http.Handler {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := entity.StringToID(vars["product_id"])
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		err = productService.AdminDeleteProduct(id)
+		if err != nil && err != entity.ErrNotFound {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
 	})
 }
 
@@ -270,15 +334,27 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 
 func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
 
+	//get list category
 	r.Handle("/categories", listCategories(productService, categoryService)).Methods(http.MethodGet)
 
+	//get product by query
 	r.Handle("/product", searchProduct(productService)).Methods(http.MethodGet)
 
+	//top product
 	r.Handle("/product/top", topProducts(productService)).Methods(http.MethodGet)
 
+	//get products list by category id
 	r.Handle("/product/{cate_id}", getProducts(productService, categoryService)).Methods(http.MethodGet)
 
+	//get products list by category id in admin page
+	r.Handle("/admin/product/{cate_id}", adminGetProducts(productService)).Methods(http.MethodGet)
+
+	//get products list by category id in admin page
+	r.Handle("/admin/product/{product_id}", adminDeleteProduct(productService)).Methods(http.MethodDelete)
+
+	//get product by id
 	r.Handle("/product/{cate_id}/{product_id}", getProduct(productService, categoryService)).Methods(http.MethodGet)
 
+	//create product
 	r.Handle("/product", createProduct(productService)).Methods(http.MethodPost)
 }

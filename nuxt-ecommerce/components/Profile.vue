@@ -130,7 +130,7 @@
                       <h6 class="mb-0">Join From</h6>
                     </div>
                     <div class="col-sm-9 text-primary">
-                      {{ this.$auth.user.createAt.split('T')[0] }}
+                      {{ this.$auth.user.createdAt.split('T')[0] }}
                     </div>
                   </div>
                   <hr>
@@ -317,7 +317,7 @@ export default {
         name: this.$auth.user.name,
         phone: this.$auth.user.phone,
         gender: this.$auth.user.gender,
-        createAt: this.$auth.user.createAt.split('T')[0],
+        createAt: this.$auth.user.createdAt.split('T')[0],
       },
       dltAccount: {
         id: this.$auth.user.id.toString(),
@@ -358,9 +358,9 @@ export default {
       this.$nuxt.refresh()
       await this.$auth.fetchUser()
     },
-    async deleteAccount() {
+    async deleteAccount(){
       try {
-        await this.$axios.delete("/admin/user", {
+        await this.$axios.delete("/user", {
           data: this.dltAccount
         })
         await this.$auth.logout()

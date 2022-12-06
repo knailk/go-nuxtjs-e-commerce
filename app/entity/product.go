@@ -12,11 +12,11 @@ type Product struct {
 	Description    string `json:"description"`
 	QuantitySold   int64  `json:"quantitySold"`
 	AvailableUnits int64  `json:"availableUnits"`
-	Image          string `json:"image"`
 	CreatedAt      string `json:"createdAt"`
 	UpdatedAt      string `json:"updatedAt"`
 	CategoryID     int64  `json:"categoryId"`
 	IsDeleted      bool   `json:"isDeleted"`
+	Image          string `json:"image"`
 }
 
 //NewProduct create a new product with new ID

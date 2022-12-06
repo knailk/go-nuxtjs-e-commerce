@@ -18,13 +18,13 @@ import (
 // listUsers return http handler
 func listUsers(service usecase.UserUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
-		//errorMessage := "error reading users"
 		var data []*entity.User
 		var err error
 		query := r.URL.Query().Get("query")
+		filter := r.URL.Query().Get("filter")
 		switch {
 		case query == "":
-			data, err = service.ListUsers()
+			data, err = service.ListUsers(filter)
 		default:
 			data, err = service.SearchUsers(query)
 		}
@@ -49,6 +49,7 @@ func listUsers(service usecase.UserUsecase) http.Handler {
 				Gender:    d.Gender,
 				CreatedAt: d.CreatedAt,
 				UpdatedAt: d.UpdatedAt,
+				IsDeleted: d.IsDeleted,
 			})
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -232,6 +233,27 @@ func deleteUser(service usecase.UserUsecase) http.Handler {
 	})
 }
 
+// deleteUser delete a user
+func adminDeleteUser(service usecase.UserUsecase) http.Handler {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := entity.StringToID(vars["id"])
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		err = service.AdminDeleteUser(id)
+		if err != nil && err != entity.ErrNotFound {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+	})
+}
+
 func updateUser(service usecase.UserUsecase) http.Handler {
 	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
 		//errorMessage := "error update user"
@@ -297,7 +319,9 @@ func MakeUserHandlers(r *mux.Router, service usecase.UserUsecase) {
 
 	r.Handle("/admin/user/{id}", getUser(service)).Methods(http.MethodGet)
 
-	r.Handle("/admin/user", deleteUser(service)).Methods(http.MethodDelete)
+	r.Handle("/user", deleteUser(service)).Methods(http.MethodDelete)
+
+	r.Handle("/admin/user/{id}", adminDeleteUser(service)).Methods(http.MethodDelete)
 
 	r.Handle("/admin/user/edit", updateUser(service)).Methods(http.MethodPost)
 }

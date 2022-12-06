@@ -17,8 +17,8 @@
 import "@/assets/css/style.css";
 export default {
   async asyncData({ $axios }) {
-    const catelist = await $axios.$get("http://localhost:8081/categories");
-    const topProduct = await $axios.$get("http://localhost:8081/product/top");
+    const catelist = await $axios.$get("/categories");
+    const topProduct = await $axios.$get("/product/top");
     const listProductsInCart = await $axios.$get("/cart");
     let numberProductInCart;
     if (listProductsInCart.totalPrice == 0) numberProductInCart = 0

@@ -24,9 +24,11 @@ type ProductUsecase interface {
 	TopProduct() ([]*entity.Product, error)
 	SearchProducts(query string) ([]*entity.Product, error)
 	ListProducts(id int64) ([]*entity.Product, error)
+	AdminGetProducts(id int64) ([]*entity.Product, error)
 	CreateProduct(e *entity.Product) (entity.ID, error)
 	UpdateProduct(e *entity.Product) error
 	DeleteProduct(id entity.ID) error
+	AdminDeleteProduct(id entity.ID) error
 }
 
 //UseCase interface
@@ -34,10 +36,11 @@ type UserUsecase interface {
 	GetUser(id entity.ID) (*entity.User, error)
 	GetUserByEmail(email string) (*entity.User, error)
 	SearchUsers(query string) ([]*entity.User, error)
-	ListUsers() ([]*entity.User, error)
+	ListUsers(filter string) ([]*entity.User, error)
 	CreateUser(user *entity.User) (entity.ID, error)
 	UpdateUser(e *entity.User) error
 	DeleteUser(id entity.ID) error
+	AdminDeleteUser(id entity.ID) error
 }
 
 //CartUsecase interface

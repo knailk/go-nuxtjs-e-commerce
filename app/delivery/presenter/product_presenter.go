@@ -14,6 +14,7 @@ type Product struct {
 	CreatedAt      string    `json:"createdAt"`
 	UpdatedAt      string    `json:"updatedAt"`
 	Category       int       `json:"category"`
+	IsDeleted      bool      `json:"isDeleted"`
 }
 
 type Category struct {

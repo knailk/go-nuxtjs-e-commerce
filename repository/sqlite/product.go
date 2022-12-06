@@ -42,7 +42,7 @@ func (r *ProductRepo) SearchByQuery(query string) ([]*entity.Product, error) {
 	from product 
 	where name like ? and isDeleted = 0
 	order by name ASC
-	LIMIT 5`)
+	LIMIT 10`)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,27 @@ func (r *ProductRepo) List(id int64) ([]*entity.Product, error) {
 	}
 	return result, nil
 }
-
+// ListAll product by category id include isdelete = true
+func (r *ProductRepo) ListAll(id int64) ([]*entity.Product, error) {
+	stmt, err := r.db.Prepare(`Select * from product where categoryID = ?`)
+	if err != nil {
+		return nil, err
+	}
+	var result []*entity.Product
+	rows, err := stmt.Query(id)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var p entity.Product
+		err = rows.Scan(&p.ProductID, &p.Name, &p.Price, &p.Description, &p.QuantitySold, &p.AvailableUnits, &p.CreatedAt, &p.UpdatedAt, &p.CategoryID, &p.IsDeleted, &p.Image,)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, &p)
+	}
+	return result, nil
+}
 // Create a product.
 func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
@@ -200,7 +220,7 @@ func (r *ProductRepo) Update(e *entity.Product) error {
 
 // Delete a product.
 func (r *ProductRepo) Delete(id entity.ID) error {
-	_, err := r.db.Exec("update product set isDeleted = true where id = ?", id)
+	_, err := r.db.Exec("update product set isDeleted = NOT isDeleted where id = ?", id)
 	if err != nil {
 		return err
 	}

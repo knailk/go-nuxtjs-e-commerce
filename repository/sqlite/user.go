@@ -80,20 +80,20 @@ func (r *UserRepo) Search(query string) ([]*entity.User, error) {
 }
 
 // List get all user
-func (r *UserRepo) List() ([]*entity.User, error) {
-	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updatedAt from user where isDeleted = 0`)
+func (r *UserRepo) List(filter string) ([]*entity.User, error) {
+	stmt, err := r.db.Prepare(`select id,email,name,gender,phone,createdAt, updatedAt, isDeleted from user order by ?`)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
-	rows, err := stmt.Query()
+	rows, err := stmt.Query(filter)
 	if err != nil {
 		return nil, err
 	}
 	var result []*entity.User
 	for rows.Next() {
 		var u entity.User
-		rows.Scan(&u.UserId, &u.Email, &u.Name, &u.Gender, &u.Phone, &u.CreatedAt, &u.UpdatedAt)
+		rows.Scan(&u.UserId, &u.Email, &u.Name, &u.Gender, &u.Phone, &u.CreatedAt, &u.UpdatedAt, &u.IsDeleted)
 		result = append(result, &u)
 	}
 	return result, nil
@@ -157,9 +157,13 @@ func (r *UserRepo) Update(user *entity.User) error {
 
 // Delete a User.
 func (r *UserRepo) Delete(id entity.ID) error {
-	_, err := r.db.Exec("update user set isDeleted = true where id = ?", id)
+	_, err := r.db.Exec("update user set isDeleted = NOT isDeleted where id = ?", id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
+
+
+

@@ -17,7 +17,7 @@ type UserQuery interface {
 	Get(id entity.ID) (*entity.User, error)
 	GetByEmail(email string) (*entity.User, error)
 	Search(query string) ([]*entity.User, error)
-	List() ([]*entity.User, error)
+	List(filter string) ([]*entity.User, error)
 	Create(e *entity.User) (entity.ID, error)
 	Update(e *entity.User) error
 	Delete(id entity.ID) error
@@ -30,6 +30,7 @@ type ProductQuery interface {
 	Top() ([]*entity.Product, error)
 	Search(query string) ([]*entity.Product, error)
 	List(int64) ([]*entity.Product, error)
+	ListAll(int64) ([]*entity.Product, error)
 	Create(e *entity.Product) (entity.ID, error)
 	Update(e *entity.Product) error
 	Delete(id entity.ID) error

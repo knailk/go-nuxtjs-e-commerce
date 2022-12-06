@@ -37,8 +37,8 @@ func (s *UserService) SearchUsers(query string) ([]*entity.User, error) {
 	return s.dao.NewUserRepo().Search(strings.ToLower(query))
 }
 
-func (s *UserService) ListUsers() ([]*entity.User, error) {
-	return s.dao.NewUserRepo().List()
+func (s *UserService) ListUsers(filter string) ([]*entity.User, error) {
+	return s.dao.NewUserRepo().List(filter)
 }
 
 func (s *UserService) CreateUser(e *entity.User) (entity.ID, error) {
@@ -59,5 +59,9 @@ func (s *UserService) DeleteUser(id entity.ID) error {
 	if err != nil {
 		return err
 	}
+	return s.dao.NewUserRepo().Delete(id)
+}
+
+func (s *UserService) AdminDeleteUser(id entity.ID) error {
 	return s.dao.NewUserRepo().Delete(id)
 }
