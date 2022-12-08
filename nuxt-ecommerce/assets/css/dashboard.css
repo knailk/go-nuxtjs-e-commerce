@@ -136,19 +136,6 @@ a[data-toggle="collapse"] {
   position: relative;
 }
 
-a[aria-expanded="false"]::before, a[aria-expanded="true"]::before {
-  /*content: '﹀';*/
-font-family: 'fontawesome';
-  content: '\f078';
-  display: block;
-  position: absolute;
-  right: 20px;
-  font-size: 0.6em;
-}
-a[aria-expanded="true"]::before {
-  /*content: '︿';*/
-  content: '\f077';
-}
 
 
 ul ul a {

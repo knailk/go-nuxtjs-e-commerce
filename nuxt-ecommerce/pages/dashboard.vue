@@ -19,25 +19,25 @@
           </li>
           <li>
             <NuxtLink to="/dashboard/user">
-              <i class="fa fa-briefcase"></i>
+              <i class="fa fa-users"></i>
               User
             </NuxtLink>
           </li>
           <li>
             <NuxtLink to="/dashboard/product">
-              <i class="fa fa-link"></i>
+              <i class="fas fa-shopping-cart"></i>
               Product
             </NuxtLink>
           </li>
           <li>
             <NuxtLink to="/dashboard/add">
-              <i class="fa fa-paperclip"></i>
-              Add new product
+              <i class="fa fa-database"></i>
+              New product
             </NuxtLink>
           </li>
           <li>
-            <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">
-              <i class="fa fa-file"></i>
+            <a href="#pageSubmenu" role="button" data-toggle="collapse" aria-expanded="false" aria-controls="pageSubmenu">
+              <i class="far fa-file"></i>
               Pages
             </a>
             <ul class="collapse list-unstyled" id="pageSubmenu">
@@ -62,5 +62,9 @@ export default {}
 </script>
 
 <style scoped>
-@import "~/assets/css/dashboard.css"
+@import "~/assets/css/dashboard.css";
+
+li a::before {
+  display: none;
+}
 </style>
