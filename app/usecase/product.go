@@ -39,8 +39,8 @@ func (s *ProductService) AdminGetProducts(id int64) ([]*entity.Product, error){
 func (s *ProductService) CreateProduct(p *entity.Product) (entity.ID, error) {
 	return s.dao.NewProductRepo().Create(p)
 }
-func (s *ProductService) UpdateProduct(e *entity.Product) error {
-	return s.dao.NewProductRepo().Update(e)
+func (s *ProductService) UpdateProduct(id entity.ID, name string, price int64, description string, availableUnits int64, quantitySold int64) error {
+	return s.dao.NewProductRepo().Update(id,name,price,description,availableUnits,quantitySold)
 }
 func (s *ProductService) DeleteProduct(id entity.ID) error {
 	u, err := s.GetProduct(id)

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -332,6 +333,49 @@ func createProduct(productService usecase.ProductUsecase) http.Handler {
 	})
 }
 
+// updateProduct update product by admin
+func updateProduct(productService usecase.ProductUsecase) http.Handler {
+	return middleware.ValidateJWT(func(w http.ResponseWriter, r *http.Request) {
+		var input struct {
+			Id             string `json:"id" validate:"required"`
+			Name           string `json:"name" validate:"required,min=2,max=50"`
+			Price          int64  `json:"price" validate:"omitempty"`
+			Description    string `json:"description" validate:"omitempty"`
+			QuantitySold   int64  `json:"quantitySold"`
+			AvailableUnits int64  `json:"availableUnits"`
+		}
+		validate := validator.New()
+		err := json.NewDecoder(r.Body).Decode(&input)
+		fmt.Println(input)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		if err := validate.Struct(input); err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		id, err := entity.StringToID(input.Id)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		err = productService.UpdateProduct(id,input.Name, input.Price, input.Description, input.AvailableUnits, input.QuantitySold)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+	})
+}
+
 func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, categoryService usecase.CategoryUsecase) {
 
 	//get list category
@@ -355,6 +399,9 @@ func MakeProductHandlers(r *mux.Router, productService usecase.ProductUsecase, c
 	//get product by id
 	r.Handle("/product/{cate_id}/{product_id}", getProduct(productService, categoryService)).Methods(http.MethodGet)
 
-	//create product
+	// createProduct create product
 	r.Handle("/product", createProduct(productService)).Methods(http.MethodPost)
+
+	//update product
+	r.Handle("/admin/product", updateProduct(productService)).Methods(http.MethodPost)
 }

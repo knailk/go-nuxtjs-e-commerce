@@ -185,28 +185,26 @@ func (r *ProductRepo) Create(e *entity.Product) (entity.ID, error) {
 }
 
 // Update a product.
-func (r *ProductRepo) Update(e *entity.Product) error {
+func (r *ProductRepo) Update(id entity.ID, name string, price int64, description string, availableUnits, quantitySold int64) error {
 	stmt, err := r.db.Prepare(`update product set 
 	name = ?, 
 	price = ?, 
 	description = ?, 
 	quantitySold = ?,
 	availableUnits =?, 
-	image =?,
 	updatedAt = ? 
 	where id = ? and isDeleted = 0`)
 	if err != nil {
 		return err
 	}
 	_, err = stmt.Exec(
-		e.Name,
-		e.Price,
-		e.Description,
-		e.QuantitySold,
-		e.AvailableUnits,
-		e.Image,
+		name,
+		price,
+		description,
+		quantitySold,
+		availableUnits,
 		time.Now().Format(time.RFC3339),
-		e.ProductID,
+		id,
 	)
 	if err != nil {
 		return err

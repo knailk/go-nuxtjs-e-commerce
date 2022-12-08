@@ -2,29 +2,88 @@
   <div>
     <div class="modal fade modify-product" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
       aria-hidden="true">
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">{{item.name}}</h5>
+            <h5 class="modal-title" id="exampleModalLabel">{{itemChoose.name}}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="recipient-name" class="col-form-label">Recipient:</label>
-                <input type="text" class="form-control" id="recipient-name">
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="d-flex flex-column align-items-center text-center">
+                      <img class="w-100 h-100" :src="~/assets/img/itemChoose.image" alt="" width="150">
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="message-text" class="col-form-label">Message:</label>
-                <textarea class="form-control" id="message-text"></textarea>
+              <div class="col-md-8">
+                <div class="card" style="display:flex">
+                  <div class="card-body">
+                    <div class="row mb-3">
+                      <div class="col-sm-3">
+                        <h6 class="mb-0">Name</h6>
+                      </div>
+                      <div class="col-sm-9 text-primary">
+                        <input type="text" class="form-control" v-model="itemChoose.name" minlength="2" maxlength="50">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-sm-3">
+                        <h6 class="mb-0">Description</h6>
+                      </div>
+                      <div class="col-sm-9 text-primary">
+                        <textarea type="text" class="form-control" v-model="itemChoose.description" style="overflow-y:auto;"></textarea>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-sm-3">
+                        <h6 class="mb-0">Available</h6>
+                      </div>
+                      <div class="col-sm-2 text-primary">
+                        <input type="number" class="form-control" min=0 v-model="itemChoose.availableUnits">
+                      </div>
+                      <div class="col-sm-3">
+                        <h6 class="mb-0">Sold</h6>
+                      </div>
+                      <div class="col-sm-4 text-primary">
+                        <input type="number" class="form-control" min=0 v-model="itemChoose.quantitySold">
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-sm-3">
+                        <h6 class="mb-0">Price</h6>
+                      </div>
+                      <div class="col-sm-2 text-primary">
+                        <input type="number" class="form-control" v-model="itemChoose.price" minlength="9" maxlength="11">
+                      </div>
+                      <div class="col-sm-3">
+                        <h6 class="mb-0">Category</h6>
+                      </div>
+                      <div class="col-sm-4 text-primary">
+                        <input type="text" class="form-control" v-model="currCategory" readonly>
+                      </div>
+                    </div>
+                    <div class="row mb-3">
+                      <div class="col-sm-3">
+                        <h6 class="mb-0">Create From</h6>
+                      </div>
+                      <div class="col-sm-9 text-primary">
+                        <input type="text" class="form-control" v-model="itemChoose.createdAt" readonly>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </form>
+            </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Send message</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="deleteProduct(itemChoose.id)">Delete</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="updateProduct()">Save</button>
           </div>
         </div>
       </div>
@@ -55,7 +114,9 @@
             </div>
             <div style="height: 75%"
               class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-              <button data-toggle="modal" data-target=".modify-product" @click="sendItem(item)"><img class="img-fluid w-100" :src="require(`~/assets/img/${item.image}`)" alt=""></button>
+              <button id="btn-img" data-toggle="modal" data-target=".modify-product" @click="sendItem(item)">
+                <img class="img-fluid w-100" :src="require(`~/assets/img/${item.image}`)" alt="">
+              </button>
             </div>
             <div style="height: 20%" class="card-body border-left border-right text-center p-0">
               <h6 class="text-truncate">{{ item.name }}</h6>
@@ -73,7 +134,15 @@ export default {
     return {
       currCategory: "Bag",
       productList: this.productList,
-      item:""
+      itemChoose: {
+        id:"",
+        name:"",
+        price:0,
+        description:"",
+        availableUnits:0,
+        quantitySold:0,
+        createdAt:""
+      },
     }
   },
   async asyncData({ $axios }) {
@@ -89,9 +158,41 @@ export default {
       }
     },
     sendItem(item){
-      this.item = item
+      this.itemChoose = item
+      this.itemChoose.id = item.id.toString()
+      console.log(this.item)
+    },
+    async updateProduct(){
+      try {
+        console.log(this.itemChoose)
+        this.itemChoose.quantitySold = parseInt(this.itemChoose.quantitySold)
+        this.itemChoose.availableUnits = parseInt(this.itemChoose.availableUnits)
+        this.itemChoose.price = parseInt(this.itemChoose.price)
+        const response = await this.$axios.post("/admin/product", this.itemChoose)
+        this.$notify({
+          group: 'foo',
+          title: 'Notification',
+          type: 'success',
+          text: 'Update successful!',
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700
+        })
+      } catch (error) {
+        this.$notify({
+          group: 'foo',
+          title: 'Notification',
+          type: 'error',
+          text: error.toString(),
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700
+        })
+      }
+      this.$nuxt.refresh()
+      await this.$auth.fetchUser()
     }
-    // async changeStatus(id) {
+    // async deleteProduct(id) {
     //     await this.$axios.delete('/admin/product/' + id)
     //     this.$nuxt.refresh()
     //   }
@@ -101,7 +202,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.modify-product
+
+#btn-img{
+  padding: 0;
+  border: none;
+  background: none;
+}
+#btn-img:focus { outline: none; }
+.col-sm-3{
+  align-items: center;
+  justify-content: left;
+  display:flex
+}
+
 #close {
   position: absolute;
   -webkit-transition: -webkit-transform .25s, opacity .25s;

@@ -26,7 +26,7 @@ type ProductUsecase interface {
 	ListProducts(id int64) ([]*entity.Product, error)
 	AdminGetProducts(id int64) ([]*entity.Product, error)
 	CreateProduct(e *entity.Product) (entity.ID, error)
-	UpdateProduct(e *entity.Product) error
+	UpdateProduct(id entity.ID, name string, price int64, description string, availableUnits int64, quantitySold int64) error
 	DeleteProduct(id entity.ID) error
 	AdminDeleteProduct(id entity.ID) error
 }

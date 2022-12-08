@@ -329,7 +329,6 @@ export default {
   methods: {
     editProfile() {
       this.viewProfile = !this.viewProfile
-      console.log(this.$auth.user)
     },
     async saveChanges() {
       try {

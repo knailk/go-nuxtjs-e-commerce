@@ -32,7 +32,7 @@ type ProductQuery interface {
 	List(int64) ([]*entity.Product, error)
 	ListAll(int64) ([]*entity.Product, error)
 	Create(e *entity.Product) (entity.ID, error)
-	Update(e *entity.Product) error
+	Update(id entity.ID, name string, price int64, description string, availableUnits, quantitySold int64) error
 	Delete(id entity.ID) error
 }
 
