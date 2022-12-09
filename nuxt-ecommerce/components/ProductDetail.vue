@@ -1,7 +1,7 @@
 
 <template>
   <div>
-    <notifications position="top right"  width=400 height=700 group="foo" />
+    <notifications position="top right" width=400 height=700 group="foo" />
     <!-- Shop Detail Start -->
     <div class="container-fluid py-5">
       <div class="row px-xl-5">
@@ -147,23 +147,28 @@
             <div class="tab-pane  show active" id="tab-pane-1">
               <h4 class="mb-3">Product Description</h4>
               <p>Eos no lorem eirmod diam diam, eos elitr et gubergren diam sea. Consetetur vero aliquyam invidunt duo
-                dolores et duo sit. Vero diam ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed sed et,
+                dolores et duo sit. Vero diam ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed sed
+                et,
                 lorem duo et eos elitr, sadipscing kasd ipsum rebum diam. Dolore diam stet rebum sed tempor kasd eirmod.
                 Takimata kasd ipsum accusam sadipscing, eos dolores sit no ut diam consetetur duo justo est, sit sanctus
-                diam tempor aliquyam eirmod nonumy rebum dolor accusam, ipsum kasd eos consetetur at sit rebum, diam kasd
+                diam tempor aliquyam eirmod nonumy rebum dolor accusam, ipsum kasd eos consetetur at sit rebum, diam
+                kasd
                 invidunt tempor lorem, ipsum lorem elitr sanctus eirmod takimata dolor ea invidunt.</p>
               <p>Dolore magna est eirmod sanctus dolor, amet diam et eirmod et ipsum. Amet dolore tempor consetetur sed
                 lorem dolor sit lorem tempor. Gubergren amet amet labore sadipscing clita clita diam clita. Sea amet et
-                sed ipsum lorem elitr et, amet et labore voluptua sit rebum. Ea erat sed et diam takimata sed justo. Magna
+                sed ipsum lorem elitr et, amet et labore voluptua sit rebum. Ea erat sed et diam takimata sed justo.
+                Magna
                 takimata justo et amet magna et.</p>
             </div>
             <div class="tab-pane " id="tab-pane-2">
               <h4 class="mb-3">Additional Information</h4>
               <p>Eos no lorem eirmod diam diam, eos elitr et gubergren diam sea. Consetetur vero aliquyam invidunt duo
-                dolores et duo sit. Vero diam ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed sed et,
+                dolores et duo sit. Vero diam ea vero et dolore rebum, dolor rebum eirmod consetetur invidunt sed sed
+                et,
                 lorem duo et eos elitr, sadipscing kasd ipsum rebum diam. Dolore diam stet rebum sed tempor kasd eirmod.
                 Takimata kasd ipsum accusam sadipscing, eos dolores sit no ut diam consetetur duo justo est, sit sanctus
-                diam tempor aliquyam eirmod nonumy rebum dolor accusam, ipsum kasd eos consetetur at sit rebum, diam kasd
+                diam tempor aliquyam eirmod nonumy rebum dolor accusam, ipsum kasd eos consetetur at sit rebum, diam
+                kasd
                 invidunt tempor lorem, ipsum lorem elitr sanctus eirmod takimata dolor ea invidunt.</p>
               <div class="row">
                 <div class="col-md-6">
@@ -289,23 +294,33 @@ export default {
       this.counter++
     },
     async addToCart(id) {
-      console.log(id.toString())
-      console.log(this.counter)
-      await this.$axios.$post('/cart/add', {
-        productId: id.toString(),
-        quantity: this.counter,
-      })
-      await this.$auth.fetchUser()
-      this.$notify({
-        group: 'foo',
-        type: 'success',
-        title: 'Notification',
-        text: 'Added to Cart!',
-        $: {enter: {opacity: [1, 0]}, leave: {opacity: [0, 1]}},
-        ignoreDuplicates: true,
-        width: 700,
-      })
-      this.$nuxt.refresh()
+      try {
+        await this.$axios.$post('/cart/add', {
+          productId: id.toString(),
+          quantity: this.counter,
+        })
+        await this.$auth.fetchUser()
+        this.$notify({
+          group: 'foo',
+          type: 'success',
+          title: 'Notification',
+          text: 'Added to Cart!',
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700,
+        })
+        this.$nuxt.refresh()
+      } catch (error) {
+        this.$notify({
+          group: 'foo',
+          title: 'Notification',
+          type: 'error',
+          text: "Not enough product available",
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700
+        })
+      }
     }
   }
 }

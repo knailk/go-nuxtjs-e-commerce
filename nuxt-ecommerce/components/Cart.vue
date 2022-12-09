@@ -20,14 +20,14 @@
               <td class="align-middle">
                 <div class="input-group quantity mx-auto" style="width: 100px;">
                   <div class="input-group-btn">
-                    <button class="btn btn-sm btn-primary btn-minus" @click="changeQuantity(item.productId, -1)">
+                    <button class="btn btn-sm btn-primary btn-minus" @click="changeQuantity(item.productId, -1, false)">
                       <i class="fa fa-minus"></i>
                     </button>
                   </div>
                   <input type="text" class="form-control form-control-sm bg-secondary text-center"
                     :value="item.quantity">
                   <div class="input-group-btn">
-                    <button class="btn btn-sm btn-primary btn-plus" @click="changeQuantity(item.productId, 1)">
+                    <button class="btn btn-sm btn-primary btn-plus" @click="changeQuantity(item.productId, 1, false)">
                       <i class="fa fa-plus"></i>
                     </button>
                   </div>
@@ -35,7 +35,7 @@
               </td>
               <td class="align-middle">${{ item.price * item.quantity }}</td>
               <td class="align-middle"><button class="btn btn-sm btn-primary"
-                  @click="changeQuantity(item.productId, item.quantity)"><i class="fa fa-times"></i></button></td>
+                  @click="changeQuantity(item.productId, item.quantity, true)"><i class="fa fa-times"></i></button></td>
             </tr>
           </tbody>
         </table>
@@ -56,7 +56,7 @@
           <div class="card-body">
             <div class="d-flex justify-content-between mb-3 pt-1">
               <h6 class="font-weight-medium">Subtotal</h6>
-              <h6 class="font-weight-medium">${{listProductsInCart.totalPrice}}</h6>
+              <h6 class="font-weight-medium">${{ listProductsInCart.totalPrice }}</h6>
             </div>
             <div class="d-flex justify-content-between">
               <h6 class="font-weight-medium">Discount</h6>
@@ -66,13 +66,14 @@
           <div class="card-footer border-secondary bg-transparent">
             <div class="d-flex justify-content-between mt-2">
               <h5 class="font-weight-bold">Total</h5>
-              <h5 class="font-weight-bold">${{listProductsInCart.totalPrice}}</h5>
+              <h5 class="font-weight-bold">${{ listProductsInCart.totalPrice }}</h5>
             </div>
             <button class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</button>
           </div>
         </div>
       </div>
     </div>
+    <notifications position="top right" width=400 height=700 group="foo" />
   </div>
 </template>
 
@@ -88,15 +89,28 @@ export default {
     }
   },
   methods: {
-    async changeQuantity(productId, quantity) {
+    async changeQuantity(productId, quantity, isDelete) {
       try {
         this.details.productId = productId.toString()
         this.details.quantity = quantity
-        if (quantity == 1) {
-          await this.$axios.$post('/cart/add', {
-            productId: productId.toString(),
-            quantity: 1,
-          })
+        if (quantity == 1 && isDelete == false) {
+          try {
+            await this.$axios.$post('/cart/add', {
+              productId: productId.toString(),
+              quantity: 1,
+            })
+          } catch (error) {
+            this.$notify({
+              group: 'foo',
+              title: 'Notification',
+              type: 'error',
+              text: "Not enough product available",
+              $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+              ignoreDuplicates: true,
+              width: 700
+            })
+          }
+
         } else {
           if (quantity == -1) this.details.quantity = 1
           await this.$axios.$post('/cart/remove', {

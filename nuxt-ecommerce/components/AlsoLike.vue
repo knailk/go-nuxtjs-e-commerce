@@ -1,6 +1,6 @@
 <template>
   <div>
-    <notifications position="top right"  width=400 height=700 group="foo" />
+    <notifications position="top right" width=400 height=700 group="foo" />
     <!-- Also Like Products Start -->
     <div class="container-fluid py-5">
       <div class="text-center mb-4">
@@ -44,22 +44,33 @@ export default {
   props: ['listProducts'],
   methods: {
     async addToCart(id) {
-      console.log(id.toString())
-      await this.$axios.$post('/cart/add', {
-        productId: id.toString(),
-        quantity: 1,
-      })
-      await this.$auth.fetchUser()
-      this.$notify({
-        group: 'foo',
-        title: 'Notification',
-        type: 'success',
-        text: 'Added to Cart!',
-        $: {enter: {opacity: [1, 0]}, leave: {opacity: [0, 1]}},
-        ignoreDuplicates: true,
-        width:  700
-      })
-      this.$nuxt.refresh()
+      try {
+        await this.$axios.$post('/cart/add', {
+          productId: id.toString(),
+          quantity: 1,
+        })
+        await this.$auth.fetchUser()
+        this.$notify({
+          group: 'foo',
+          title: 'Notification',
+          type: 'success',
+          text: 'Added to Cart!',
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700
+        })
+        this.$nuxt.refresh()
+      } catch (error) {
+        this.$notify({
+          group: 'foo',
+          title: 'Notification',
+          type: 'error',
+          text: "Not enough product available",
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700
+        })
+      }
     }
   }
 }

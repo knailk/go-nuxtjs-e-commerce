@@ -96,6 +96,7 @@ export default {
   auth: {
     strategies: {
       local: {
+        rewriteRedirects: false,
         user: {
           property: false,
           autoFetch: true

@@ -14,7 +14,8 @@
                 <h3 class="mb-4 text-center">Have an account?</h3>
                 <form action="#" class="signin-form" @submit.prevent="userLogin">
                   <div class="form-group">
-                    <input type="text" v-model="form.email" class="form-control" placeholder="Email address" name="email">
+                    <input type="text" v-model="form.email" class="form-control" placeholder="Email address"
+                      name="email">
                   </div>
                   <div class="form-group">
                     <input v-if="showPassword" v-model="form.password" type="text" id="password-field"
@@ -73,8 +74,8 @@ export default {
       showPassword: false,
       password: null,
       form: {
-        email: "a@bcd",
-        password: "a@bcda@bcd",
+        email: "ad@min",
+        password: "admin123",
       },
     };
   },
@@ -92,6 +93,9 @@ export default {
         let response = await this.$auth.loginWith("local", {
           data: this.form,
         })
+        if (response.data.role == "Admin") {
+          this.$router.push('/dashboard/home')
+        }
       } catch (err) {
         console.log(err)
         var stt = ""

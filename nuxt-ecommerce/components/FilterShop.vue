@@ -164,8 +164,10 @@
                   </div>
                 </div>
                 <div div style="height: 15%" class="card-footer d-flex justify-content-between bg-light border">
-                  <NuxtLink NuxtLink :to="'/categories/' + item.category + '/' + item.id" class="btn btn-sm text-dark p-0">
-                    <i class="fas fa-eye text-primary mr-1"></i>View Detail</NuxtLink>
+                  <NuxtLink NuxtLink :to="'/categories/' + item.category + '/' + item.id"
+                    class="btn btn-sm text-dark p-0">
+                    <i class="fas fa-eye text-primary mr-1"></i>View Detail
+                  </NuxtLink>
                   <button class="btn btn-sm text-dark p-0" @click="addToCart(item.id)"><i
                       class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</button>
                 </div>
@@ -186,23 +188,33 @@ export default {
   props: ['listProducts'],
   methods: {
     async addToCart(id) {
-      console.log(id.toString())
-      console.log(this.counter)
-      await this.$axios.$post('/cart/add', {
-        productId: id.toString(),
-        quantity: 1,
-      })
-      await this.$auth.fetchUser()
-      this.$notify({
-        group: 'foo',
-        type: 'success',
-        title: 'Notification',
-        text: 'Added to Cart!',
-        $: {enter: {opacity: [1, 0]}, leave: {opacity: [0, 1]}},
-        ignoreDuplicates: true,
-        width: 700,
-      })
-      this.$nuxt.refresh()
+      try {
+        await this.$axios.$post('/cart/add', {
+          productId: id.toString(),
+          quantity: 1,
+        })
+        await this.$auth.fetchUser()
+        this.$notify({
+          group: 'foo',
+          type: 'success',
+          title: 'Notification',
+          text: 'Added to Cart!',
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700,
+        })
+        this.$nuxt.refresh()
+      } catch (error) {
+        this.$notify({
+          group: 'foo',
+          title: 'Notification',
+          type: 'error',
+          text: "Not enough product available",
+          $: { enter: { opacity: [1, 0] }, leave: { opacity: [0, 1] } },
+          ignoreDuplicates: true,
+          width: 700
+        })
+      }
     }
   }
 }

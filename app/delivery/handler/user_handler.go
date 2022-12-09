@@ -137,6 +137,7 @@ func currUser(service usecase.UserUsecase) http.Handler {
 			Gender:    data.Gender,
 			CreatedAt: data.CreatedAt,
 			UpdatedAt: data.UpdatedAt,
+			Role: data.Role,
 		}
 		if err := json.NewEncoder(w).Encode(user); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

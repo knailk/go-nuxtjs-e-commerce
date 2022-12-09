@@ -4,11 +4,11 @@
       <!-- Sidebar Holder -->
       <nav id="sidebar">
         <div class="sidebar-header">
-          <span class="text-decoration-none">
+          <NuxtLink to="/" class="text-decoration-none">
             <h1 class="mb-4 display-5 font-weight-semi-bold">
               <span class="text-secondary font-weight-bold border border-white px-3 mr-1">E</span>Knailk
             </h1>
-          </span>
+          </NuxtLink>
         </div>
         <ul class="list-unstyled components">
           <li>
@@ -47,6 +47,7 @@
             </ul>
           </li>
         </ul>
+        <button type="button" class="btn btn-info" @click="$auth.logout()">Log out</button>
       </nav>
 
       <!-- Page Content Holder -->
@@ -58,7 +59,9 @@
 </template>
 
 <script>
-export default {}
+export default {
+  middleware:  ['auth-admin'],
+}
 </script>
 
 <style scoped>

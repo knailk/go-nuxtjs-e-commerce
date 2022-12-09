@@ -25,7 +25,6 @@ type Role string
 const (
 	ADMIN    Role = "Admin"
 	CUSTOMER Role = "Customer"
-	SELLER   Role = "Seller"
 )
 
 //NewUser create a new user with new ID
