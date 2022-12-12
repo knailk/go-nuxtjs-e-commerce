@@ -22,11 +22,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-
 func main() {
 	var dsn string
 	var setLimits bool
-	flag.StringVar(&dsn, "dsn", "/shopeeDB.db", "SQLite DSN")
+	flag.StringVar(&dsn, "dsn", "/ecommerceDB.db", "SQLite DSN")
 	flag.BoolVar(&setLimits, "limits", false, "Sets DB limits")
 	flag.Parse()
 
@@ -35,13 +34,13 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	defer func(db *sql.DB){
+	defer func(db *sql.DB) {
 		err := db.Close()
 		if err != nil {
 			log.Fatalln(err)
 		}
 	}(db)
-	
+
 	dao := sqlite.NewDAO(db)
 	// userRepo := sqlite.NewUserRepo(db)
 	// userService := user.NewService(userRepo)
@@ -59,10 +58,10 @@ func main() {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete},
-		AllowedHeaders:[]string{"Accept","Authorization","Content-Type"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: false,
 	})
-	
+
 	if err != nil {
 		log.Panic(err.Error())
 	}
@@ -71,11 +70,10 @@ func main() {
 	//handler
 	handler.MakeUserHandlers(r, userService)
 	handler.MakeProductHandlers(r, productService, categoryService)
-	handler.MakeAuthHandlers(r,authService)
-	handler.MakeCartHandlers(r,cartService)
-	
+	handler.MakeAuthHandlers(r, authService)
+	handler.MakeCartHandlers(r, cartService)
+
 	http.Handle("/", h)
-	
 
 	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)
 	srv := &http.Server{
@@ -91,9 +89,9 @@ func main() {
 	}
 }
 
-func openDB(dsn string, setLitmits bool) (*sql.DB, error){
+func openDB(dsn string, setLitmits bool) (*sql.DB, error) {
 	//connect to database
-	db,err := sql.Open("sqlite3", "shopeeDB.db")
+	db, err := sql.Open("sqlite3", "ecommerceDB.db")
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +102,7 @@ func openDB(dsn string, setLitmits bool) (*sql.DB, error){
 		db.SetMaxIdleConns(5)
 	}
 
-	ctx,cancel := cx.WithTimeout(cx.Background(), 5*time.Second)
+	ctx, cancel := cx.WithTimeout(cx.Background(), 5*time.Second)
 	defer cancel()
 
 	err = db.PingContext(ctx)
