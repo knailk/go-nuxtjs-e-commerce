@@ -1,4 +1,4 @@
-<h1 align="center">Design Shopee - Online Shopping System</h1>
+<h1 align="center">Design Ecommerce - Online Shopping System</h1>
 
 **We'll cover the following:**
 
