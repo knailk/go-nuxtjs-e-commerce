@@ -14,8 +14,8 @@
 
 I will be designing a system with the following requirements:
 
-1. Sellers should be able to add new products to sell.
-2. Sellers can update/delete their products.
+1. Admin should be able to add new products to sell.
+2. Admin can update/delete their products.
 3. Users should be able to search for products by their name or category.
 4. Customers can search and view all the products, but they will have to become a registered member to buy a product.
 5. Customers should be able to add/remove/modify product items in their shopping cart.
