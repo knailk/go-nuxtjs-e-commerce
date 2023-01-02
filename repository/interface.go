@@ -10,6 +10,7 @@ type DAO interface {
 	NewUserRepo() UserQuery
 	NewProductRepo() ProductQuery
 	NewCartRepo() CartQuery
+	NewAddressRepo() AddressQuery
 }
 
 //Repository interface
@@ -52,6 +53,12 @@ type CartQuery interface {
 	Decrease(cart *entity.Cart) error
 }
 
+//AddressQuery interface.
+type AddressQuery interface {
+	Get(email string) (*entity.Address, error)
+	Add(address *entity.Address) error
+	Update(address *entity.Address) error
+}
 // //AuthQuery interface
 // type AuthQuery interface {
 // 	//SignUp(user *entity.User) error

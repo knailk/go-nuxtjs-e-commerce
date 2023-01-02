@@ -15,8 +15,8 @@ type User struct {
 	Gender    string `json:"gender"`
 	Phone     string `json:"phone"`
 	Role      Role   `json:"role"`
-	CreatedAt string `json:"createAt"`
-	UpdatedAt string `json:"updateAt"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 	IsDeleted bool   `json:"isDelete"`
 }
 

@@ -189,7 +189,7 @@
                       <h6 class="mb-0">Join From</h6>
                     </div>
                     <div class="col-sm-9 text-primary">
-                      <input type="text" class="form-control" v-model="form.createAt">
+                      <input type="text" class="form-control" v-model="form.createdAt">
                     </div>
                   </div>
                   <div class="row">
@@ -317,7 +317,7 @@ export default {
         name: this.$auth.user.name,
         phone: this.$auth.user.phone,
         gender: this.$auth.user.gender,
-        createAt: this.$auth.user.createdAt.split('T')[0],
+        createdAt: this.$auth.user.createdAt.split('T')[0],
       },
       dltAccount: {
         id: this.$auth.user.id.toString(),

@@ -74,8 +74,10 @@ export default {
       showPassword: false,
       password: null,
       form: {
-        email: "ad@min",
-        password: "admin123",
+        // email: "ad@min",
+        // password: "admin123",
+        email: "tiendung@gmail.com",
+        password: "123456789",
       },
     };
   },

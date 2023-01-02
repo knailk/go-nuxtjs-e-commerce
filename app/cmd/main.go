@@ -55,6 +55,7 @@ func main() {
 	categoryService := usecase.NewCategoryService(dao)
 	authService := usecase.NewAuthService(dao)
 	cartService := usecase.NewCartService(dao)
+	addressService := usecase.NewAddressService(dao)
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete},
@@ -72,6 +73,7 @@ func main() {
 	handler.MakeProductHandlers(r, productService, categoryService)
 	handler.MakeAuthHandlers(r, authService)
 	handler.MakeCartHandlers(r, cartService)
+	handler.MakeAddressHandlers(r, addressService)
 
 	http.Handle("/", h)
 

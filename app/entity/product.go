@@ -34,5 +34,4 @@ func NewProduct(name string, price int64, description string, quantitySold int64
 		CategoryID:     category,
 		IsDeleted:      false,
 	}
-
 }

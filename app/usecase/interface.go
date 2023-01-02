@@ -49,3 +49,8 @@ type CartUsecase interface {
 	AddToCart(productId entity.ID, email string, quantity int64) error
 	RemoveProduct(productId entity.ID, email string, quantity int64) error
 }
+
+type AddressUsecase interface {
+	GetAddress(email string) (*entity.Address, error)
+	AddAddress(address *entity.Address) error
+}

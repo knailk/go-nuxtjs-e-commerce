@@ -43,6 +43,12 @@ func (d *dao) NewCartRepo() repository.CartQuery {
 	}
 }
 
+func(d *dao) NewAddressRepo() repository.AddressQuery{
+	return &AddressRepo{
+		db: d.db,
+	}
+}
+
 // // NewProductRepo create an implementation of product repository.
 // func (d *dao) NewAuthRepo() repository.AuthQuery {
 // 	return &AuthRepo{

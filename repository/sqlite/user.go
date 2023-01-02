@@ -138,6 +138,7 @@ func (r *UserRepo) Update(user *entity.User) error {
 	if err != nil {
 		return err
 	}
+	defer stmt.Close()
 	_, err = stmt.Exec(
 		user.Name,
 		user.Gender,
@@ -145,10 +146,6 @@ func (r *UserRepo) Update(user *entity.User) error {
 		time.Now().Format(time.RFC3339),
 		user.UserId,
 	)
-	if err != nil {
-		return err
-	}
-	err = stmt.Close()
 	if err != nil {
 		return err
 	}
