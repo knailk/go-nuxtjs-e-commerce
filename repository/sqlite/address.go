@@ -18,7 +18,7 @@ func (r *AddressRepo) Get(email string) (*entity.Address, error){
 	rows, err := stmt.Query(email)
 	var a entity.Address
 	for rows.Next() {
-		err = rows.Scan(&a.Email, &a.Country, &a.City, &a.District, &a.Ward, &a.Address)
+		err = rows.Scan(&a.Email, &a.Country, &a.City, &a.District, &a.Ward, &a.Address, &a.CreatedAt, &a.UpdatedAt)
 	}
 	if err != nil {
 		return nil, err
@@ -33,7 +33,7 @@ func (r *AddressRepo) Add(address *entity.Address) error{
 	stmt, err := r.db.Prepare(`
 	insert into address 
 	(email, country, city, district, ward, address, createdAt, updatedAt)
-	value (?,?,?,?,?,?)`)
+	values (?,?,?,?,?,?,?,?)`)
 	if err != nil {
 		return err
 	}

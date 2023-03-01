@@ -8,24 +8,16 @@
                     <div class="row">
                         <div class="col-md-6 form-group">
                             <label>Full Name</label>
-                            <input class="form-control" type="text" placeholder="John">
+                            <input class="form-control" type="text" :value="this.$auth.user.name" placeholder="John">
                         </div>
-                        <!-- <div class="col-md-6 form-group">
-                            <label>Last Name</label>
-                            <input class="form-control" type="text" placeholder="Doe">
-                        </div> -->
                         <div class="col-md-6 form-group">
-                            <label>E-mail</label>
-                            <input class="form-control" type="text" placeholder="example@email.com">
+                            <label>Email</label>
+                            <input class="form-control" type="text" :value="this.$auth.user.email" placeholder="example@email.com" readonly>
                         </div>
                         <div class="col-md-6 form-group">
                             <label>Mobile No</label>
-                            <input class="form-control" type="text" placeholder="+123 456 789">
+                            <input class="form-control" type="text" :value="this.$auth.user.phone" placeholder="+123 456 789">
                         </div>
-                        <!-- <div class="col-md-6 form-group">
-                            <label>Address</label>
-                            <input class="form-control" type="text" placeholder="123 Street">
-                        </div> -->
                         <div class="col-md-6 form-group">
                             <label>Country</label>
                             <select class="custom-select">
@@ -188,7 +180,15 @@
 
 <script>
 export default {
-  props: ['listProductsInCart']
+  props: ['listProductsInCart', 'address'],
+  data(){
+    return {
+      address: {
+        productId: "",
+        quantity: 0,
+      },
+    }
+  }
 }
 </script>
 

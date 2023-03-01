@@ -14,7 +14,7 @@
       </div>
     </div>
     <!-- Page Header End -->
-    <Checkout :listProductsInCart ="listProductsInCart"/>
+    <Checkout :listProductsInCart ="listProductsInCart" :address = "address"/>
     <Footer />
   </div>
 </template>
@@ -24,11 +24,12 @@
 export default {
   async asyncData({ $axios }) {
     const catelist = await $axios.$get('http://localhost:8081/categories')
+    const address = await $axios.$get('http://localhost:8081/address')
     const listProductsInCart = await $axios.$get("/cart");
     let numberProductInCart;
     if (listProductsInCart.totalPrice == 0) numberProductInCart = 0
     else numberProductInCart = listProductsInCart.listProductsInCart.length
-    return { catelist, listProductsInCart, numberProductInCart }
+    return { catelist, listProductsInCart, numberProductInCart, address }
   },
     scrollToTop: true
 }
